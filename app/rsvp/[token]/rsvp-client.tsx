@@ -231,7 +231,7 @@ export default function RsvpClient({ token }: { token: string }) {
 
                     <div className="mt-4 text-sm text-black/70">
                       <p className="font-medium">Save the date</p>
-                      <p className="mt-1">March 5, 2026, 2:00 PM</p>
+                      <p className="mt-1">March 6, 2026, 2:00 PM</p>
                       <p className="mt-1">Saint Micheal Archangel Quasi Parish - Eden</p>
                     </div>
                   </div>
@@ -419,7 +419,7 @@ export default function RsvpClient({ token }: { token: string }) {
                 We’re getting married
               </h3>
               <p className="mt-2 text-sm text-white/90">
-                Save the date — March 5, 2026 • 2:00 PM
+                Save the date • March 6, 2026 • 2:00 PM
               </p>
               <p className="mt-1 text-sm text-white/80">
                 Saint Micheal Archangel Quasi Parish - Eden
