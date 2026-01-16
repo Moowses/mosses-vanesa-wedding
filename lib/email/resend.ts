@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const esc = (s: string) =>
   s
     .replaceAll("&", "&amp;")
@@ -35,15 +33,11 @@ export function buildRsvpConfirmationHtml(opts: {
           </p>
 
           <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">
-            We are truly excited to have you be part of something very special to us.
-            Thank you for confirming your attendance. It means so much to know that you
-            will be there to witness and celebrate our wedding day.
+            We are truly excited to have you be part of something very special to us. Thank you for confirming your attendance. It means so much to know that you will be there to witness and celebrate our wedding day.
           </p>
 
           <p style="margin:0 0 20px;font-size:15px;line-height:1.7;">
-            Your presence will make our celebration even more meaningful as we begin
-            this new chapter of our lives together. We cannot wait to share this
-            unforgettable moment with you.
+            Your presence will make our celebration even more meaningful as we begin this new chapter of our lives together. We cannot wait to share this unforgettable moment with you.
           </p>
 
           <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
@@ -57,8 +51,7 @@ export function buildRsvpConfirmationHtml(opts: {
           </p>
 
           <p style="margin:0 0 10px;font-size:15px;line-height:1.7;">
-            For more information regarding attire, program details, and other important updates,
-            please visit our wedding website:
+            For more information regarding attire, program details, and other important updates, please visit our wedding website:
           </p>
 
           <p style="margin:0 0 18px;">
@@ -68,9 +61,7 @@ export function buildRsvpConfirmationHtml(opts: {
           </p>
 
           <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">
-            If you would like to support us as we start our family together, you may do so by scanning
-            the QR code provided. Your love and presence are more than enough, and any support is
-            sincerely appreciated.
+            If you would like to support us as we start our family together, you may do so by scanning the QR code provided. Your love and presence are more than enough, and any support is sincerely appreciated.
           </p>
 
           <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">
@@ -102,7 +93,14 @@ export async function sendRsvpConfirmationEmail(opts: {
   guestName: string;
   updateUrl: string;
 }) {
-  if (!process.env.RESEND_API_KEY) return { sent: false };
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM;
+
+  if (!apiKey || !from) {
+    return { sent: false as const, id: null as string | null };
+  }
+
+  const resend = new Resend(apiKey);
 
   const html = buildRsvpConfirmationHtml({
     guestName: opts.guestName,
@@ -110,11 +108,13 @@ export async function sendRsvpConfirmationEmail(opts: {
   });
 
   const result = await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from,
     to: opts.to,
     subject: "We’re So Excited to Celebrate With You",
     html,
   });
 
-  return { sent: true, id: (result as any)?.data?.id };
+  const id = (result as any)?.data?.id ?? (result as any)?.id ?? null;
+
+  return { sent: true as const, id };
 }
