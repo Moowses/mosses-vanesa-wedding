@@ -2,575 +2,672 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { Allura, Comfortaa } from "next/font/google";
+
+const comfortaa = Comfortaa({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const allura = Allura({
+  subsets: ["latin"],
+  weight: ["400"],
+});
 
 type Guest = {
   guestId: string;
   fullName: string;
   paxAllowed: number;
-  role: string;
-  relation: string;
   rsvpSubmitted: boolean;
-
-  // NEW (optional): your /api/rsvp/verify should return this if it exists in Firestore
-  email?: string;
-
-  // OPTIONAL: if you want to persist consent
-  announcementOptIn?: boolean;
+  email?: string | null;
+  announcementOptIn?: boolean | null;
 };
 
-const CONTACT_EMAIL = "info@mossesandvanesa.com";
-const CONTACT_PHONE = "09261142143";
+type VerifyResponse = {
+  ok: boolean;
+  guest?: Guest;
+  rsvp?: {
+    attendance: "yes" | "no" | null;
+    paxAttending: number;
+    message: string;
+  };
+  deadlineIso?: string | null;
+  error?: string;
+};
 
-// If your files are actually .jpg/.png, update these paths.
-const SLIDES = ["/mv.jpg", "/mv2.jpg"];
+type SubmitResponse = {
+  ok: boolean;
+  emailSent?: boolean;
+  emailId?: string | null;
+  error?: string;
+};
 
-type Step = "welcome" | "form" | "done";
-type Attendance = "yes" | "no" | null;
+function formatDateLong(d: Date) {
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  });
+}
 
-function isValidEmail(email: string) {
-  const v = email.trim();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function useCountdown(targetMs: number) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const diff = Math.max(0, targetMs - now);
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / (24 * 3600));
+  const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return { days, hours, minutes, seconds, done: diff === 0 };
+}
+
+function MusicToggle() {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const audio = document.getElementById("bg-music") as HTMLAudioElement | null;
+    if (!audio) return;
+
+    const tryPlay = async () => {
+      try {
+        audio.volume = 0.35;
+        await audio.play();
+        setEnabled(true);
+        window.removeEventListener("pointerdown", tryPlay);
+        window.removeEventListener("keydown", tryPlay);
+      } catch {
+        // autoplay blocked until user interaction
+      }
+    };
+
+    window.addEventListener("pointerdown", tryPlay, { once: true });
+    window.addEventListener("keydown", tryPlay, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", tryPlay);
+      window.removeEventListener("keydown", tryPlay);
+    };
+  }, []);
+
+  const toggle = async () => {
+    const audio = document.getElementById("bg-music") as HTMLAudioElement | null;
+    if (!audio) return;
+
+    try {
+      if (audio.paused) {
+        audio.volume = 0.35;
+        await audio.play();
+        setEnabled(true);
+      } else {
+        audio.pause();
+        setEnabled(false);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <>
+      <audio id="bg-music" src="/minamahal.mp3" loop preload="auto" />
+      <button
+        type="button"
+        onClick={toggle}
+        className="fixed bottom-4 right-4 z-50 rounded-full px-4 py-2 shadow-lg ring-1 ring-black/10 backdrop-blur hover:bg-white"
+      >
+        <span className={`${comfortaa.className} text-sm font-semibold text-slate-800`}>
+          {enabled ? "🔊" : "🔇"}
+        </span>
+      </button>
+    </>
+  );
+}
+
+function EventImageLink(props: { src: string; href: string; alt: string }) {
+  return (
+    <a
+      href={props.href}
+      target="_blank"
+      rel="noreferrer"
+      className="group block w-full overflow-hidden rounded-[32px] shadow-[0_16px_60px_rgba(0,0,0,0.10)] ring-1 ring-black/5"
+    >
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "509 / 706" }}>
+        <Image
+          src={props.src}
+          alt={props.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        />
+      </div>
+    </a>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string | React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+      >
+        <span className={`${comfortaa.className} text-sm font-semibold text-slate-900`}>
+          {q}
+        </span>
+        <span className="text-slate-500">{open ? "−" : "+"}</span>
+      </button>
+      {open ? (
+        <div className="px-5 pb-5">
+          <div className={`${comfortaa.className} text-sm leading-6 text-slate-600`}>{a}</div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export default function RsvpClient({ token }: { token: string }) {
+  const weddingDate = useMemo(() => new Date("2026-03-06T14:00:00+08:00"), []);
+  const countdown = useCountdown(weddingDate.getTime());
+
   const [loading, setLoading] = useState(true);
   const [guest, setGuest] = useState<Guest | null>(null);
   const [deadlineIso, setDeadlineIso] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const [step, setStep] = useState<Step>("welcome");
-  const [attendance, setAttendance] = useState<Attendance>(null);
+  const [attendance, setAttendance] = useState<"yes" | "no" | null>(null);
   const [paxAttending, setPaxAttending] = useState<number>(1);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
 
-  // NEW: email + announcements consent
   const [email, setEmail] = useState("");
-  const [announcementOptIn, setAnnouncementOptIn] = useState(true);
+  const [optIn, setOptIn] = useState(true);
 
-  // NEW: prevent double submit + show status
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Slideshow state
-  const [slideIdx, setSlideIdx] = useState(0);
-
-  const deadlineMs = useMemo(
-    () => (deadlineIso ? new Date(deadlineIso).getTime() : null),
-    [deadlineIso]
-  );
-  const isClosed = useMemo(
-    () => (deadlineMs ? Date.now() > deadlineMs : false),
-    [deadlineMs]
+  const [banner, setBanner] = useState<{ type: "success" | "error"; text: string } | null>(
+    null
   );
 
-  const needsEmail = useMemo(() => !guest?.email, [guest?.email]);
-  const emailOk = useMemo(() => {
-    if (!needsEmail) return true;
-    return isValidEmail(email);
-  }, [needsEmail, email]);
+  const needsEmail = useMemo(() => !guest?.email, [guest]);
 
-  // Load guest from token
   useEffect(() => {
+    let mounted = true;
+
     (async () => {
       try {
-        setLoading(true);
-        setError(null);
-
         const res = await fetch("/api/rsvp/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token }),
         });
 
-        const data = await res.json();
-        if (!data.ok) {
-          setError(data.error || "INVALID");
-          setGuest(null);
-          return;
+        const data = (await res.json()) as VerifyResponse;
+        if (!data.ok || !data.guest) throw new Error(data.error || "Invalid RSVP link");
+        if (!mounted) return;
+
+        setGuest(data.guest);
+        setDeadlineIso(data.deadlineIso ?? null);
+        setEmail(data.guest.email || "");
+        setOptIn(data.guest.announcementOptIn ?? true);
+
+        if (data.rsvp) {
+          setAttendance(data.rsvp.attendance ?? null);
+          setPaxAttending(data.rsvp.paxAttending || 1);
+          setMessage(data.rsvp.message || "");
+        } else {
+          setPaxAttending(data.guest.paxAllowed ? 1 : 1);
         }
-
-        const g: Guest = data.guest;
-        setGuest(g);
-        setDeadlineIso(data.deadlineIso || null);
-
-        // default pax attending to 1 (dropdown later limits to paxAllowed)
-        const allowed = g?.paxAllowed ?? 1;
-        setPaxAttending(Math.min(1, allowed));
-
-        // NEW: prefill email if already stored
-        setEmail(g.email || "");
-
-        // OPTIONAL: prefill opt-in if stored
-        setAnnouncementOptIn(g.announcementOptIn ?? true);
-      } catch {
-        setError("NETWORK_ERROR");
+      } catch (e: any) {
+        setBanner({ type: "error", text: e?.message || "Invalid RSVP link" });
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     })();
+
+    return () => {
+      mounted = false;
+    };
   }, [token]);
 
-  // Slideshow timer
-  useEffect(() => {
-    const t = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % SLIDES.length);
-    }, 5500);
-    return () => clearInterval(t);
-  }, []);
+  const rsvpDeadlineText = useMemo(() => {
+    if (!deadlineIso) return "RSVP closes February 13, 2026";
+    const d = new Date(deadlineIso);
+    if (Number.isNaN(d.getTime())) return "RSVP closes February 13, 2026";
+    return `RSVP closes ${formatDateLong(d)}`;
+  }, [deadlineIso]);
 
-  // Keyboard shortcut: Enter to continue on welcome step
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (
-        e.key === "Enter" &&
-        step === "welcome" &&
-        !loading &&
-        !error &&
-        guest &&
-        !isClosed
-      ) {
-        setStep("form");
-      }
+  const submitDisabled = useMemo(() => {
+    if (!guest) return true;
+    if (!attendance) return true;
+    if (attendance === "yes" && (paxAttending < 1 || paxAttending > guest.paxAllowed)) return true;
+
+    if (needsEmail) {
+      const v = email.trim();
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      if (!ok) return true;
     }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [step, loading, error, guest, isClosed]);
+    return false;
+  }, [guest, attendance, paxAttending, needsEmail, email]);
 
-  const paxOptions = useMemo(() => {
-    const max = Math.max(1, guest?.paxAllowed ?? 1);
-    return Array.from({ length: max }, (_, i) => i + 1);
-  }, [guest?.paxAllowed]);
-
-  async function submit() {
+  async function onSubmit() {
     if (!guest) return;
-
-    setSubmitError(null);
+    setBanner(null);
 
     if (!attendance) {
-      alert("Please select Yes or No.");
+      setBanner({ type: "error", text: "Please select Yes or No." });
       return;
     }
 
-    // NEW: if email is missing on record, require it now
-    if (needsEmail && !emailOk) {
-      alert("Please enter a valid email so we can send your RSVP confirmation.");
-      return;
-    }
-
-    // Validate pax if attending yes
-    let pax = 0;
     if (attendance === "yes") {
-      const max = guest.paxAllowed ?? 1;
-      pax = Number(paxAttending);
+      const p = clamp(paxAttending, 1, guest.paxAllowed);
+      if (p !== paxAttending) setPaxAttending(p);
+    }
 
-      if (!Number.isFinite(pax) || pax < 1 || pax > max) {
-        alert(`Pax must be between 1 and ${max}`);
+    if (needsEmail) {
+      const v = email.trim();
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      if (!ok) {
+        setBanner({ type: "error", text: "Please enter a valid email address." });
         return;
       }
-    } else {
-      pax = 0;
     }
 
-    try {
-      setSubmitting(true);
+    setSubmitting(true);
 
+    try {
       const res = await fetch("/api/rsvp/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          paxAttending: pax,
           attendance,
+          paxAttending: attendance === "yes" ? paxAttending : 0,
           message,
-
-          // NEW: capture email/opt-in for confirmation + announcements
-          email: email.trim() || undefined,
-          announcementOptIn,
+          email: needsEmail ? email.trim() : undefined,
+          announcementOptIn: optIn,
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as SubmitResponse;
 
-      if (!data.ok) {
-        if (data.error === "RSVP_CLOSED") {
-          alert(`RSVP is closed. Contact: ${CONTACT_EMAIL} / ${CONTACT_PHONE}`);
-        } else {
-          alert("Unable to submit RSVP. Please contact the couple.");
-        }
+      if (!res.ok || !data.ok) {
+        setBanner({ type: "error", text: data.error || "Submission failed. Please try again." });
         return;
       }
 
-      // Update local guest state so UI reflects email saved + submitted
-      setGuest((prev) =>
-        prev
-          ? {
-              ...prev,
-              rsvpSubmitted: true,
-              email: prev.email || email.trim() || prev.email,
-              announcementOptIn,
-            }
-          : prev
-      );
+      setBanner({
+        type: "success",
+        text: data.emailSent ? "RSVP saved. Confirmation email sent." : "RSVP saved successfully.",
+      });
 
-      setStep("done");
+      setGuest((g) =>
+        g
+          ? {
+              ...g,
+              rsvpSubmitted: true,
+              email: g.email || (needsEmail ? email.trim() : g.email),
+              announcementOptIn: optIn,
+            }
+          : g
+      );
     } catch {
-      setSubmitError("NETWORK_ERROR");
-      alert("Network error. Please try again.");
+      setBanner({ type: "error", text: "Network error. Please try again." });
     } finally {
       setSubmitting(false);
     }
   }
 
-  return (
-    <div className="min-h-screen bg-[#fffaf3] px-4 py-8">
-      <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-white/70 shadow-sm ring-1 ring-black/5 backdrop-blur">
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* LEFT: RSVP FORM */}
-          <div className="order-2 lg:order-1 p-6 sm:p-10">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs tracking-[0.18em] text-black/60">
-                  M O S S E S & V A N E S A
-                </p>
-                <h1 className="mt-2 font-serif text-3xl sm:text-4xl text-black/90">
-                  Wedding Invitation
-                </h1>
-              </div>
+  const displayDate = useMemo(() => {
+    const d = weddingDate;
+    return `${String(d.getDate()).padStart(2, "0")} ${d.toLocaleDateString(undefined, {
+      month: "long",
+      year: "numeric",
+    })}`;
+  }, [weddingDate]);
 
-              {deadlineIso && (
-                <div className="flex flex-col items-start sm:items-end">
-                  <div className="mt-3 sm:mt-0 rounded-xl bg-black/5 px-4 py-2 sm:px-4 sm:py-3">
-                    <p className="text-[10px] uppercase tracking-wide text-black/60">
-                      RSVP closes
-                    </p>
-                    <p className="text-xs sm:text-sm font-medium text-black/80">
-                      {new Date(deadlineIso).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              )}
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="mx-auto max-w-4xl px-6 py-14 text-center">
+          <div className={`${comfortaa.className} text-sm text-slate-600`}>Loading…</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen bg-white ${comfortaa.className}`}>
+      <MusicToggle />
+
+      {/* HERO */}
+      <section className="relative h-[520px] w-full overflow-hidden">
+        <Image
+          src="/hero.jpg"
+          alt="Mosses & Vanesa"
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-black/50" />
+
+        <div className="relative z-10 flex h-full items-center justify-center px-6 text-center">
+          <div className="max-w-3xl text-white">
+            <h2 className="text-[28px] font-bold sm:text-[40px]">
+              It’s official, we’re tying the knot.
+            </h2>
+
+            <h1 className={`${allura.className} mt-3 text-[64px] leading-[0.95] sm:text-[120px]`}>
+              Mosses &amp; Vanesa
+            </h1>
+
+            <h3 className="mt-4 text-[26px] font-light sm:text-[40px]">06 March 2026</h3>
+          </div>
+        </div>
+      </section>
+
+      {/* RSVP CARD */}
+      <section className="relative z-20 -mt-20 px-6 pb-14">
+        <div className="mx-auto max-w-3xl rounded-[28px] bg-white/95 p-6 shadow-[0_18px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/5 backdrop-blur sm:p-8">
+          {/* Centered Title */}
+          <div className="text-center">
+            <div className="text-[13px] tracking-[0.25em] text-slate-500 uppercase">
+              You are invited
             </div>
 
-            <div className="mt-6">
-              {loading && (
-                <div className="rounded-2xl bg-black/5 p-5 text-center">
-                  <p className="text-sm text-black/70">Loading your invitation…</p>
-                </div>
-              )}
+            <h1 className="mt-3 text-[42px] sm:text-[54px] font-semibold text-slate-900 leading-[1.05]">
+              {guest?.fullName ?? "Guest"}
+            </h1>
 
-              {!loading && error && (
-                <div className="rounded-2xl bg-red-50 p-5">
-                  <p className="font-medium text-red-900">
-                    This RSVP link is invalid or expired.
-                  </p>
-                  <p className="mt-2 text-sm text-red-900/70">
-                    Contact: <span className="font-medium">{CONTACT_EMAIL}</span> /{" "}
-                    <span className="font-medium">{CONTACT_PHONE}</span>
-                  </p>
-                </div>
-              )}
-
-              {!loading && guest && (
-                <>
-                  {/* Guest header */}
-                  <div className="rounded-2xl bg-black/5 p-5">
-                    <p className="text-xs tracking-[0.14em] text-black/60">
-                      YOU ARE INVITED
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-black/90">
-                      {guest.fullName}
-                    </p>
-                    <p className="mt-2 text-sm text-black/70">
-                      We reserved up to{" "}
-                      <span className="font-semibold">{guest.paxAllowed}</span>{" "}
-                      seat{guest.paxAllowed > 1 ? "s" : ""} for you.
-                    </p>
-
-                    <div className="mt-4 text-sm text-black/70">
-                      <p className="font-medium">Save the date</p>
-                      <p className="mt-1">March 6, 2026, 2:00 PM</p>
-                      <p className="mt-1">
-                        Saint Micheal Archangel Quasi Parish - Eden
-                      </p>
-                    </div>
-                  </div>
-
-                  {isClosed ? (
-                    <div className="mt-5 rounded-2xl bg-yellow-50 p-5 text-sm text-yellow-900">
-                      RSVP is closed. For changes, contact{" "}
-                      <span className="font-medium">{CONTACT_EMAIL}</span> /{" "}
-                      <span className="font-medium">{CONTACT_PHONE}</span>.
-                    </div>
-                  ) : (
-                    <>
-                      {guest.rsvpSubmitted && (
-                        <div className="mt-5 rounded-2xl bg-green-50 p-5 text-sm text-green-900">
-                          ✅ RSVP already submitted. You can still update it before the
-                          deadline.
-                        </div>
-                      )}
-
-                      {/* Step content */}
-                      {step === "welcome" && (
-                        <div className="mt-6 rounded-2xl bg-white p-6 ring-1 ring-black/10">
-                          <h2 className="text-xl font-semibold text-black/90">
-                            We hope you can join us!
-                          </h2>
-                          <p className="mt-2 text-sm text-black/70">
-                            Press <span className="font-medium">Enter</span> or click
-                            continue to begin your RSVP.
-                          </p>
-
-                          <button
-                            onClick={() => setStep("form")}
-                            className="mt-5 w-full rounded-2xl bg-[#f3b6a6] px-4 py-3 font-medium text-black hover:opacity-90"
-                          >
-                            Continue
-                          </button>
-
-                          <p className="mt-3 text-center text-xs text-black/60">
-                            Need help? {CONTACT_EMAIL} / {CONTACT_PHONE}
-                          </p>
-                        </div>
-                      )}
-
-                      {step === "form" && (
-                        <div className="mt-6 rounded-2xl bg-white p-6 ring-1 ring-black/10">
-                          <h2 className="text-xl font-semibold text-black/90">
-                            Will you attend?
-                          </h2>
-
-                          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <button
-                              type="button"
-                              onClick={() => setAttendance("yes")}
-                              className={[
-                                "rounded-2xl px-4 py-3 text-left ring-1 transition",
-                                attendance === "yes"
-                                  ? "bg-black text-white ring-black"
-                                  : "bg-white text-black ring-black/10 hover:ring-black/20",
-                              ].join(" ")}
-                            >
-                              <p className="text-sm font-semibold">Yes, I will attend</p>
-                              <p className="mt-1 text-xs opacity-80">
-                                Confirm your seat(s).
-                              </p>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => setAttendance("no")}
-                              className={[
-                                "rounded-2xl px-4 py-3 text-left ring-1 transition",
-                                attendance === "no"
-                                  ? "bg-black text-white ring-black"
-                                  : "bg-white text-black ring-black/10 hover:ring-black/20",
-                              ].join(" ")}
-                            >
-                              <p className="text-sm font-semibold">No, I can’t attend</p>
-                              <p className="mt-1 text-xs opacity-80">We’ll miss you.</p>
-                            </button>
-                          </div>
-
-                          {attendance === "yes" && (
-                            <div className="mt-5">
-                              <label className="text-sm font-medium text-black/80">
-                                Number attending
-                              </label>
-                              <select
-                                className="mt-2 w-full rounded-2xl border border-black/20 bg-white px-4 py-3
-                                            text-sm font-medium text-black
-                                            appearance-none
-                                            focus:outline-none focus:ring-2 focus:ring-black/30"
-                                value={paxAttending}
-                                onChange={(e) => setPaxAttending(Number(e.target.value))}
-                              >
-                                {paxOptions.map((n) => (
-                                  <option key={n} value={n}>
-                                    {n} {n === 1 ? "person" : "people"}
-                                  </option>
-                                ))}
-                              </select>
-
-                              <p className="mt-2 text-xs text-black/60">
-                                You can select up to {guest.paxAllowed} seat
-                                {guest.paxAllowed > 1 ? "s" : ""}.
-                              </p>
-                            </div>
-                          )}
-
-                          {/* NEW: Email capture when missing */}
-                          {needsEmail && (
-                            <div className="mt-5">
-                              <label className="text-sm font-medium text-black/80">
-                                Email (required for confirmation)
-                              </label>
-                              <input
-                                className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-black/20"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="your@email.com"
-                                inputMode="email"
-                                autoComplete="email"
-                              />
-                              {!emailOk && email.length > 0 && (
-                                <p className="mt-2 text-xs text-red-700">
-                                  Please enter a valid email address.
-                                </p>
-                              )}
-
-                              <label className="mt-3 flex items-start gap-3 text-xs text-black/70">
-                                <input
-                                  type="checkbox"
-                                  className="mt-0.5"
-                                  checked={announcementOptIn}
-                                  onChange={(e) => setAnnouncementOptIn(e.target.checked)}
-                                />
-                                <span>
-                                  You may send me wedding updates (optional).
-                                </span>
-                              </label>
-                            </div>
-                          )}
-
-                          <div className="mt-5">
-                            <label className="text-sm font-medium text-black/80">
-                              Message (optional)
-                            </label>
-                            <textarea
-                              className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-black/20"
-                              rows={3}
-                              value={message}
-                              onChange={(e) => setMessage(e.target.value)}
-                              placeholder="Leave a short note for the couple…"
-                            />
-                          </div>
-
-                          <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                            <button
-                              type="button"
-                              onClick={() => setStep("welcome")}
-                              disabled={submitting}
-                              className={[
-                                "w-full rounded-2xl bg-black/5 px-4 py-3 text-sm font-medium text-black",
-                                submitting ? "opacity-60" : "hover:bg-black/10",
-                              ].join(" ")}
-                            >
-                              Back
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={submit}
-                              disabled={submitting || !emailOk}
-                              className={[
-                                "w-full rounded-2xl bg-[#f3b6a6] px-4 py-3 text-sm font-semibold text-black",
-                                submitting || !emailOk ? "opacity-60" : "hover:opacity-90",
-                              ].join(" ")}
-                            >
-                              {submitting
-                                ? "Saving…"
-                                : guest.rsvpSubmitted
-                                ? "Update RSVP"
-                                : "Submit RSVP"}
-                            </button>
-                          </div>
-
-                          {submitError && (
-                            <p className="mt-3 text-center text-xs text-red-700">
-                              Something went wrong. Please try again.
-                            </p>
-                          )}
-
-                          <p className="mt-4 text-center text-xs text-black/60">
-                            Need help? {CONTACT_EMAIL} / {CONTACT_PHONE}
-                          </p>
-                        </div>
-                      )}
-
-                      {step === "done" && (
-                        <div className="mt-6 rounded-2xl bg-white p-6 ring-1 ring-black/10">
-                          <h2 className="text-xl font-semibold text-black/90">Thank you!</h2>
-                          <p className="mt-2 text-sm text-black/70">
-                            Your RSVP has been saved.
-                          </p>
-
-                          <div className="mt-4 rounded-2xl bg-black/5 p-4 text-sm text-black/70">
-                            <p className="font-medium text-black/80">
-                              Confirmation email
-                            </p>
-                            <p className="mt-1 text-xs">
-                              We’ll send a confirmation email to{" "}
-                              <span className="font-medium">
-                                {(guest.email || email || "").trim() || "your email"}
-                              </span>{" "}
-                              (if provided).
-                            </p>
-                          </div>
-
-                          <button
-                            onClick={() => setStep("form")}
-                            className="mt-5 w-full rounded-2xl bg-black/5 px-4 py-3 text-sm font-medium text-black hover:bg-black/10"
-                          >
-                            Update again
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
+            <div className="mt-3 flex items-center justify-center gap-3">
+              <div className="h-px w-10 bg-[#FFE5B4]" />
+              <div className="text-sm text-slate-600">
+                We reserved up to{" "}
+                <span className="font-semibold text-slate-900">{guest?.paxAllowed ?? 1}</span>{" "}
+                seat{(guest?.paxAllowed ?? 1) > 1 ? "s" : ""} for you
+              </div>
+              <div className="h-px w-10 bg-[#FFE5B4]" />
             </div>
           </div>
 
-          {/* RIGHT: IMAGE SLIDESHOW */}
-          <div className="order-1 lg:order-2 relative min-h-[360px] lg:min-h-full">
-            <div className="absolute inset-0">
-              {SLIDES.map((src, idx) => (
-                <div
-                  key={src}
-                  className={[
-                    "absolute inset-0 transition-opacity duration-700",
-                    idx === slideIdx ? "opacity-100" : "opacity-0",
-                  ].join(" ")}
-                >
-                  <Image
-                    src={src}
-                    alt="Mosses and Vanesa"
-                    fill
-                    priority={idx === 0}
-                    className="object-cover"
-                  />
+          {guest?.rsvpSubmitted ? (
+            <div className="mt-6 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200">
+              RSVP already submitted. You can still update it before the deadline.
+            </div>
+          ) : null}
+
+          {banner ? (
+            <div
+              className={[
+                "mt-6 rounded-2xl px-4 py-3 text-sm ring-1",
+                banner.type === "success"
+                  ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                  : "bg-rose-50 text-rose-800 ring-rose-200",
+              ].join(" ")}
+            >
+              {banner.text}
+            </div>
+          ) : null}
+
+          {/* Form */}
+          <div className="mt-7 rounded-3xl bg-white p-6 ring-1 ring-black/5">
+            <div className="text-left text-base font-semibold text-slate-900">Will you attend?</div>
+
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAttendance("yes");
+                  setPaxAttending((p) => (p < 1 ? 1 : p));
+                }}
+                className={[
+                  "rounded-2xl px-4 py-3 text-left ring-1 transition",
+                  attendance === "yes"
+                    ? "bg-slate-900 text-white ring-slate-900"
+                    : "bg-white text-slate-900 ring-black/10 hover:bg-slate-50",
+                ].join(" ")}
+              >
+                <div className="font-semibold">Yes, I will attend</div>
+                <div className={attendance === "yes" ? "text-white/80" : "text-slate-600"}>
+                  Confirm your seat(s).
                 </div>
-              ))}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAttendance("no");
+                  setPaxAttending(0);
+                }}
+                className={[
+                  "rounded-2xl px-4 py-3 text-left ring-1 transition",
+                  attendance === "no"
+                    ? "bg-slate-900 text-white ring-slate-900"
+                    : "bg-white text-slate-900 ring-black/10 hover:bg-slate-50",
+                ].join(" ")}
+              >
+                <div className="font-semibold">No, I can’t attend</div>
+                <div className={attendance === "no" ? "text-white/80" : "text-slate-600"}>
+                  We’ll miss you.
+                </div>
+              </button>
             </div>
 
-            <div className="relative z-10 flex h-full flex-col justify-end p-6 sm:p-10">
-              <p className="text-xs tracking-[0.18em] text-white/80">
-                M O S S E S & V A N E S A
-              </p>
-              <h3 className="mt-2 font-serif text-3xl sm:text-4xl text-white">
-                We’re getting married
-              </h3>
-              <p className="mt-2 text-sm text-white/90">
-                Save the date • March 6, 2026 • 2:00 PM
-              </p>
-              <p className="mt-1 text-sm text-white/80">
-                Saint Micheal Archangel Quasi Parish - Eden
-              </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {/* Seats */}
+              <div>
+                <div className="text-sm font-semibold text-slate-800">Number of seats</div>
+                <select
+                  value={attendance === "yes" ? paxAttending : 0}
+                  onChange={(e) => setPaxAttending(Number(e.target.value))}
+                  disabled={attendance !== "yes" || !guest}
+                  className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-[#FFE5B4] disabled:bg-slate-50 disabled:text-slate-400"
+                >
+                  {attendance !== "yes" ? (
+                    <option value={0}>0</option>
+                  ) : (
+                    Array.from({ length: guest?.paxAllowed || 1 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* Email / Opt in */}
+              <div>
+                {needsEmail ? (
+                  <>
+                    <div className="text-sm font-semibold text-slate-800">Email</div>
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email (for confirmation)"
+                      className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-[#FFE5B4]"
+                    />
+                  </>
+                ) : (
+                  <div className="text-sm font-semibold text-slate-800">Email</div>
+                )}
+
+                <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={optIn}
+                    onChange={(e) => setOptIn(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  Send me wedding updates (optional).
+                </label>
+              </div>
+
+              {/* Message */}
+              <div className="md:col-span-2">
+                <div className="text-sm font-semibold text-slate-800">Message (optional)</div>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Leave a short note for the couple."
+                  className="mt-2 min-h-[90px] w-full resize-none rounded-2xl border border-black/10 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-[#FFE5B4]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 text-center text-sm text-slate-500">{rsvpDeadlineText}</div>
+
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={submitting || submitDisabled}
+              className={[
+                "mt-4 w-full rounded-2xl px-5 py-3 font-semibold shadow-sm transition",
+                submitting || submitDisabled
+                  ? "bg-slate-200 text-slate-500"
+                  : "bg-[#f3b6a6] text-slate-900 hover:brightness-95",
+              ].join(" ")}
+            >
+              {submitting ? "Saving…" : guest?.rsvpSubmitted ? "Update RSVP" : "Submit RSVP"}
+            </button>
+
+            <div className="mt-4 text-center text-xs text-slate-500">
+              Need help? info@mossesandvanesa.com / 09261142143
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mx-auto mt-6 max-w-6xl text-center text-xs text-black/50">
-        © {new Date().getFullYear()} Mosses & Vanesa
+      {/* Divider + Countdown */}
+      <section className="px-6 pb-12">
+        <div className="mx-auto w-full max-w-[1040px] text-center">
+          <Image
+            src="/divider.png"
+            alt="divider"
+            width={1040}
+            height={160}
+            className="mx-auto h-auto w-full max-w-[1040px]"
+          />
+
+          <div className="mt-4 text-[28px] font-light text-[#808080] sm:text-[40px]">
+            {displayDate}
+          </div>
+
+          <div className="mt-7 grid grid-cols-4 gap-5 max-w-[520px] mx-auto">
+            {[
+              { label: "D", value: countdown.days },
+              { label: "H", value: countdown.hours },
+              { label: "M", value: countdown.minutes },
+              { label: "S", value: countdown.seconds },
+            ].map((b) => (
+              <div
+                key={b.label}
+                className="rounded-2xl bg-white h-[110px] sm:h-[120px] flex flex-col items-center justify-center shadow-[0_0_26px_rgba(255,229,180,0.55)] ring-1 ring-[#FFE5B4]/70"
+              >
+                <div className="text-[34px] sm:text-[38px] font-medium text-[#FFE5B4] leading-none">
+                  {String(b.value).padStart(2, "0")}
+                </div>
+                <div className="mt-3 text-[14px] font-medium text-[#FFCF73] leading-none">
+                  {b.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Event Cards */}
+      <section className="px-6 pb-16">
+        <div className="mx-auto w-full max-w-[1040px]">
+          <div className="grid gap-8 md:grid-cols-2">
+            <EventImageLink
+              src="/weddingceremony1.png"
+              alt="Wedding Ceremony"
+              href="https://maps.app.goo.gl/mCK6jo7yczmKfyT28"
+            />
+            <EventImageLink
+              src="/weddingparty.png"
+              alt="Wedding Reception"
+              href="https://share.google/YyCPriAO23vJrkzqP"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* FAQs */}
+     <section className="px-6 pb-20">
+      <div className="mx-auto max-w-3xl">
+        <div className="text-center">
+          <h2 className={`${comfortaa.className} text-2xl font-bold text-slate-900`}>
+            FAQs
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            We can’t wait to share our special day with you! If you have any questions,
+            chances are they are answered here. If not, please reach out to us and we can
+            answer whatever questions you have.
+          </p>
+        </div>
+
+        <div className="mt-8 space-y-3">
+          <FaqItem
+            q="When is the RSVP deadline?"
+            a={
+              <>
+                Kindly RSVP by <b>Feb 13, 2026</b>, so we can plan accordingly. If we
+                haven’t heard from you by then, we’ll assume you can’t make it.
+              </>
+            }
+          />
+
+          <FaqItem
+            q="What if I don’t RSVP in time?"
+            a="We will miss celebrating with you. We need to provide our venue with the exact number of guests by a certain date, so please don’t RSVP late."
+          />
+
+          <FaqItem
+            q="What should I do if I said yes but later realize I can't make it?"
+            a="We know things come up! If your plans change and you can no longer make it, please drop us a message so we can update our headcount."
+          />
+
+          <FaqItem
+            q="Can I bring a plus one?"
+            a="As much as we’d love to include everyone, our venue has limited space and we’re only able to invite those listed on the invitation. Thank you for your understanding—we’re so excited to celebrate with you!"
+          />
+
+          <FaqItem
+            q="Are the kids invited?"
+            a="We’re giving the grown-ups a well-deserved break. This celebration is just for the adults."
+          />
+
+          <FaqItem
+            q="What time should I arrive at the ceremony?"
+            a="The ceremony will start at 1:30 in the afternoon, but we recommend arriving about thirty minutes early to ensure you are seated as we begin."
+          />
+
+          <FaqItem
+            q="Can I take pictures during the ceremony?"
+            a="We are having an unplugged ceremony. Once the ceremony begins, we kindly ask that all phones be put away and silenced. We want everyone to be fully present with us, and our photographer will capture the moments, which we will absolutely share with you."
+          />
+
+          <FaqItem
+            q="What kind of gift would you prefer?"
+            a="Your love and presence are more than enough. However, if you would like to give something, a monetary gift would be truly appreciated. It will help us begin our life together and create meaningful memories along the way."
+          />
+        </div>
       </div>
+    </section>
+
     </div>
   );
 }
