@@ -64,17 +64,18 @@ export default function GalleryCollageSlider() {
         ))}
       </div>
 
-      {/* Photographer Badge - LEFT SIDE */}
+     {/* Photographer Badge - LEFT SIDE */}
       <Link
         href="https://www.facebook.com/marlonguillanophotography"
         target="_blank"
-        className="absolute bottom-4 left-4 z-10"
+        className="absolute bottom-4 left-0 z-10"
       >
-        <div className="flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-xs text-white backdrop-blur-md hover:bg-black/75 transition">
+        <div className="flex items-center gap-2 rounded-full bg-black/60 px-2 py-1.5 text-[9px] text-white backdrop-blur-md hover:bg-black/65 transition">
           <span className="font-medium">Captured & Sponsored by</span>
           <span className="font-semibold">Marlon Guillano Photography</span>
         </div>
       </Link>
+
     </div>
   );
 }

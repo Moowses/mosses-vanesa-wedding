@@ -194,7 +194,7 @@ export default function AttireGuide() {
           aria-label={modalTitle}
         >
           <div
-            className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white"
+            className="w-full max-w-6xl overflow-hidden rounded-3xl bg-white"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 border-b border-black/10 px-5 py-4 sm:px-6">
@@ -212,7 +212,7 @@ export default function AttireGuide() {
               </button>
             </div>
 
-            <div className="max-h-[70vh] overflow-y-auto px-5 py-5 sm:px-6">
+            <div className="max-h-[50vh] overflow-y-auto px-5 py-5 sm:px-6">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {gallery.map((src, idx) => (
                   <img
