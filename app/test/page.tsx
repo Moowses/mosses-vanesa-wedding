@@ -71,13 +71,13 @@ export default function Home() {
             width={1700}
             height={850}
             priority
-            className="h-[340px] w-full object-cover md:h-[420px]"
+            className="h-[350px] w-full object-cover md:h-[520px]"
           />
           <div className="absolute inset-0 bg-black/50" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center px-6">
               
-               <h1 className={`${allura.className} mt-3 text-[56px] leading-[0.95] sm:text-[110px]`}>
+               <h1 className={`${allura.className} mt-3 text-[46px] leading-[0.80] sm:text-[60px]`}>
               Mosses &amp; Vanesa
               </h1>
               <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-white/80">
