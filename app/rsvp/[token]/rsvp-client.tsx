@@ -366,11 +366,11 @@ export default function RsvpClient({ token }: { token: string }) {
 
         <div className="relative z-10 flex h-full items-center justify-center px-6 text-center">
           <div className="max-w-3xl text-white">
-            <h2 className="text-[28px] font-bold sm:text-[40px]">
+            <h2 className="text-[20px] font-bold  sm:text-[40px]">
               It’s official, we’re tying the knot.
             </h2>
 
-            <h1 className={`${allura.className} mt-3 text-[64px] leading-[0.95] sm:text-[120px]`}>
+            <h1 className={`${allura.className} mt-3 text-[50px] leading-[0.99] sm:text-[100px]`}>
               Mosses &amp; Vanesa
             </h1>
 
@@ -388,7 +388,7 @@ export default function RsvpClient({ token }: { token: string }) {
               You are invited
             </div>
 
-            <h1 className="mt-3 text-[42px] sm:text-[54px] font-semibold text-slate-900 leading-[1.05]">
+            <h1 className="mt-3 text-[30px] sm:text-[54px] font-semibold text-slate-900 leading-[2.05]">
               {guest?.fullName ?? "Guest"}
             </h1>
 
