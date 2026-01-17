@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Allura, Comfortaa } from "next/font/google";
+import GallerySlider from "@/components/GallerySliderrsvp";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -545,6 +546,17 @@ export default function RsvpClient({ token }: { token: string }) {
             <div className="mt-4 text-center text-xs text-slate-500">
               Need help? info@mossesandvanesa.com / 09261142143
             </div>
+            <div className="mt-4 text-center text-xs text-slate-500">
+            More info at{" "}
+            <a
+              href="https://www.mossesandvanesa.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-slate-700 transition"
+            >
+              www.mossesandvanesa.com
+            </a>
+          </div>
           </div>
         </div>
       </section>
@@ -605,6 +617,17 @@ export default function RsvpClient({ token }: { token: string }) {
           </div>
         </div>
       </section>
+
+            {/* Gallery grid (inside canvas) */}
+                    <section id="gallery" className="px-6 pb-14 md:px-16">
+                      <div className="text-center">
+                        <h2 className={`${comfortaa.className} text-2xl font-bold text-slate-900`}>
+                          Gallery
+                        </h2>
+                         <GallerySlider />
+                      </div>
+                    </section>
+      
 
       {/* FAQs */}
      <section className="px-6 pb-20">
