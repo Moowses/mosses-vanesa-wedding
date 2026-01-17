@@ -592,15 +592,16 @@ export default function RsvpClient({ token }: { token: string }) {
         <div className="mx-auto w-full max-w-[1040px]">
           <div className="grid gap-8 md:grid-cols-2">
             <EventImageLink
-              src="/weddingceremony1.png"
-              alt="Wedding Ceremony"
-              href="https://maps.app.goo.gl/mCK6jo7yczmKfyT28"
-            />
-            <EventImageLink
               src="/weddingparty.png"
               alt="Wedding Reception"
               href="https://share.google/YyCPriAO23vJrkzqP"
             />
+            <EventImageLink
+              src="/weddingceremony.png"
+              alt="Wedding Ceremony"
+              href="https://maps.app.goo.gl/mCK6jo7yczmKfyT28"
+            />
+            
           </div>
         </div>
       </section>
