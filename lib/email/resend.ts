@@ -11,7 +11,15 @@ const esc = (s: string) =>
 export function buildRsvpConfirmationHtml(opts: {
   guestName: string;
   updateUrl: string;
+  pax?: number;
 }) {
+  const paxLine =
+    typeof opts.pax === "number" && Number.isFinite(opts.pax) && opts.pax > 0
+      ? `Please note that we have reserved <strong>${opts.pax}</strong> seat${
+          opts.pax > 1 ? "s" : ""
+        } strictly based on the number of guests (PAX) confirmed in your RSVP.`
+      : "Please note that we have reserved seats strictly based on the number of guests (PAX) confirmed in your RSVP.";
+
   return `
   <div style="background:#f6f6f6;padding:24px 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#222;">
@@ -38,6 +46,14 @@ export function buildRsvpConfirmationHtml(opts: {
 
           <p style="margin:0 0 20px;font-size:15px;line-height:1.7;">
             Your presence will make our celebration even more meaningful as we begin this new chapter of our lives together. We cannot wait to share this unforgettable moment with you.
+          </p>
+
+          <p style="margin:0 0 12px;font-size:15px;line-height:1.7;">
+            ${paxLine}
+          </p>
+
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#555;">
+            Due to limited venue capacity, we are unable to accommodate additional guests beyond the confirmed RSVP.
           </p>
 
           <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
@@ -92,6 +108,7 @@ export async function sendRsvpConfirmationEmail(opts: {
   to: string;
   guestName: string;
   updateUrl: string;
+  pax?: number;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
@@ -105,6 +122,7 @@ export async function sendRsvpConfirmationEmail(opts: {
   const html = buildRsvpConfirmationHtml({
     guestName: opts.guestName,
     updateUrl: opts.updateUrl,
+    pax: opts.pax,
   });
 
   const result = await resend.emails.send({
