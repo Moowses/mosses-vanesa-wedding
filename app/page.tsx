@@ -312,7 +312,7 @@ export default function Home() {
                 Bride Family
               </p>
               <div className="mt-4 space-y-1 text-white/85">
-                <p>Mr. Guilbert </p>
+                <p>Mr. Guilbert Guillano </p>
                 <p>Mrs. Marilyn Guillano</p>
               </div>
             </div>
@@ -322,7 +322,7 @@ export default function Home() {
                 Groom Family
               </p>
               <div className="mt-4 space-y-1 text-white/85">
-                <p>Mr Kristian Alex Banlasan</p>
+                <p>Mr. Kristian Alex Banlasan</p>
                 <p>Mrs. Pernalina Banlasan</p>
               </div>
             </div>
@@ -362,7 +362,7 @@ export default function Home() {
                 <li>Sofia Mariz Relles</li>
                 <li>Neomi Victoriano</li>
                 <li>Angelica Ahman</li>
-                <li>Rania Calalagan</li>
+                <li>Anjoren Cajes</li>
               </ul>
             </div>
 

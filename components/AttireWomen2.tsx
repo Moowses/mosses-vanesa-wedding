@@ -159,10 +159,10 @@ export default function AttireWomen() {
 
           <div className="mt-7 grid grid-cols-2 gap-3">
             <button type="button" onClick={() => setOpen("womenSponsor")} className={btn}>
-              Sponsor Women
+              View Sponsor Women Attire Samples
             </button>
             <button type="button" onClick={() => setOpen("womenGuest")} className={btn}>
-              Guest Women
+              View Guest Women Attire Samples
             </button>
           </div>
         </div>
