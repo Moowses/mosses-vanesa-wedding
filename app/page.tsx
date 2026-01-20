@@ -312,8 +312,8 @@ export default function Home() {
                 Bride Family
               </p>
               <div className="mt-4 space-y-1 text-white/85">
-                <p>Mrs. Guilbert Guillano</p>
-                <p>Marilyn Guillano</p>
+                <p>Mr. Guilbert </p>
+                <p>Mrs. Marilyn Guillano</p>
               </div>
             </div>
 
@@ -322,8 +322,8 @@ export default function Home() {
                 Groom Family
               </p>
               <div className="mt-4 space-y-1 text-white/85">
-                <p>Mr. Kristian Banlasan</p>
-                <p>Ms. Pernalina Banlasan</p>
+                <p>Mr Kristian Alex Banlasan</p>
+                <p>Mrs. Pernalina Banlasan</p>
               </div>
             </div>
           </div>
@@ -400,10 +400,10 @@ export default function Home() {
             </p>
             <div className="mt-4 space-y-2 text-white/85">
               <p>Engr. Joselito &amp; Mrs. Grace Mercado</p>
-              <p>Mr. Edwin &amp; Mrs. Annie Salinas</p>
               <p>Mr. Bill &amp; Mrs. Gina McManus</p>
-              <p>Dr. Franklin &amp; Dr. Victoria Guillano</p>
+              <p>Mr. Edwin &amp; Mrs. Annie Salinas</p>
               <p>Mr. Scott &amp; Mrs. Ruby Ahman</p>
+              <p>Dr. Franklin &amp; Dr. Victoria Guillano</p>      
             </div>
           </div>
 
@@ -413,9 +413,9 @@ export default function Home() {
               Secondary Sponsors
             </p>
             <div className="mt-4 space-y-2 text-white/80">
-              <p>Atty. Marlo &amp; Judge Rox Guillano</p>
+              <p>Atty. Marlo &amp; Judge Rocelyn Guillano</p>
               <p>Mr. Allan &amp; Mrs. Novie Relles</p>
-              <p>Mrs. Nelon &amp; Olive Victoriano</p>
+              <p>Mr. Nelon &amp; Mrs. Olive Victoriano</p>
               <p>Mr. Raul &amp; Mrs. Rolinda Salazar</p>
               <p>Mr. Bern &amp; Mrs. Mara Damla</p>
             </div>
