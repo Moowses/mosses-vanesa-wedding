@@ -56,12 +56,12 @@ export function buildRsvpConfirmationHtml(opts: {
 
           <p style="margin:0 0 18px;">
             <a href="https://mossesandvanesa.com" style="color:#c07a5a;text-decoration:none;font-weight:bold;">
-              https://mossesandvanesa.com
+              Click here
             </a>
           </p>
 
           <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">
-            If you would like to support us as we start our family together, you may do so by scanning the QR code provided. Your love and presence are more than enough, and any support is sincerely appreciated.
+            Please don’t feel obliged to bring a gift. If you’d like to help us start our family, a monetary gift will be truly appreciated.
           </p>
 
           <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">
