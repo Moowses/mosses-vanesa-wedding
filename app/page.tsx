@@ -181,15 +181,12 @@ export default function Home() {
 
           <div className="absolute inset-0 flex items-center justify-center px-6">
             <div className="w-full max-w-[850px] text-center text-white">
-              <p className="text-[11px] uppercase tracking-[0.32em] text-white/85">
-                You are invited
-              </p>
 
               <h2 className="mt-3 text-[13px] sm:text-[15px] uppercase tracking-[0.30em] text-white/75">
                 It’s official, we’re tying the knot.
               </h2>
 
-              <h1 className={`${allura.className} mt-5 text-[76px] leading-[0.82] sm:text-[105px] md:text-[120px]`}>
+              <h1 className={`${allura.className} mt-5 text-[50px] leading-[0.82] sm:text-[105px] md:text-[120px]`}>
                 Mosses &amp; Vanesa
               </h1>
 
