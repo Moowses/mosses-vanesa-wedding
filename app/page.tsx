@@ -168,36 +168,49 @@ export default function Home() {
 
 
         {/* HERO */}
-        <section id="home" className="relative">
-          <Image
-            src="/hero-couple.jpg"
-            alt="Mosses and Vanesa"
-            width={1800}
-            height={980}
-            priority
-            className="h-[430px] w-full object-cover md:h-[600px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/70" />
+<section id="home" className="relative">
+  <Image
+    src="/hero-couple.jpg"
+    alt="Mosses and Vanesa"
+    width={1800}
+    height={980}
+    priority
+    className="h-[430px] w-full object-cover object-[50%_20%] md:h-[600px]"
+  />
 
-          <div className="absolute inset-0 flex items-center justify-center px-6">
-            <div className="w-full max-w-[850px] text-center text-white">
+  <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/65" />
 
-              <h2 className="mt-3 text-[12px] sm:text-[15px] uppercase tracking-[0.30em] text-white/75">
-                It’s official, we’re tying the knot.
-              </h2>
+  {/* TEXT AT BOTTOM */}
+  <div className="absolute inset-0 flex items-end justify-center px-6 pb-12 sm:pb-16">
+    <div className="w-full max-w-[850px] text-center text-white">
+      <h2 className="text-[12px] sm:text-[15px] uppercase tracking-[0.30em] text-white/75">
+        It’s official, we’re tying the knot.
+      </h2>
 
-              <h1 className={`${allura.className} mt-5 text-[50px] leading-[0.82] sm:text-[105px] md:text-[120px]`}>
-                Mosses &amp; Vanesa
-              </h1>
+      <h1
+        className={`
+          ${allura.className}
+          mt-6
+          text-[50px]
+          leading-[0.9]
+          sm:mt-8
+          sm:text-[105px]
+          md:text-[120px]
+        `}
+      >
+        Mosses &amp; Vanesa
+      </h1>
 
-              <div className="mx-auto mt-6 h-[1px] w-24 bg-white/35" />
+      <div className="mx-auto mt-5 h-[1px] w-24 bg-white/35" />
 
-              <p className="mt-5 text-[12px] uppercase tracking-[0.30em] text-white/85">
-                March 6, 2026 • 2:00 PM • Eden
-              </p>
-            </div>
-          </div>
-        </section>
+      <p className="mt-4 text-[12px] uppercase tracking-[0.30em] text-white/85">
+        March 6, 2026 • 2:00 PM • Eden
+      </p>
+    </div>
+  </div>
+</section>
+
+
 
   {/* Statement block  */}
         <section className="px-6 pt-10 pb-8 text-center md:px-16 md:pt-14 md:pb-10">
