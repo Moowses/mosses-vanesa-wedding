@@ -335,7 +335,7 @@ export default function Home() {
                 Maid of Honor
               </p>
               <p className="mt-4 text-white/85">
-                Thea Faith Guillano <span className="italic text-white/60">(Sage Green)</span>
+                Thea Faith Guillano 
               </p>
             </div>
 
