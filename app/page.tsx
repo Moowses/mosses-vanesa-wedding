@@ -182,7 +182,7 @@ export default function Home() {
           <div className="absolute inset-0 flex items-center justify-center px-6">
             <div className="w-full max-w-[850px] text-center text-white">
 
-              <h2 className="mt-3 text-[13px] sm:text-[15px] uppercase tracking-[0.30em] text-white/75">
+              <h2 className="mt-3 text-[12px] sm:text-[15px] uppercase tracking-[0.30em] text-white/75">
                 It’s official, we’re tying the knot.
               </h2>
 
