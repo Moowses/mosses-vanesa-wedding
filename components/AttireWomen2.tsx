@@ -20,7 +20,7 @@ const WOMEN_SPONSOR_GALLERY = [
 
 const WOMEN_GUEST_GALLERY = ["/wguest1.png", "/wguest2.png", "/wguest3.png"];
 
-const MEN_GALLERY = ["/outfitformen.png", "/outfitformen1.png", "/outfitforme2.png"];
+const MEN_GALLERY = ["/outfitformen.png", "/outfitformen1.png", "/outfitformen2.png"];
 
 type ModalKey = null | "womenSponsor" | "womenGuest" | "men";
 
