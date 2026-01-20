@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     title: "Mosses & Vanesa Wedding",
     description:
       "Mosses and Vanesa are getting married on March 06, 2026 in Davao City, Philippines.",
-    type: "website",
     url: "https://www.mossesandvanesa.com/",
+    type: "website",
     images: [
       {
         url: "https://www.mossesandvanesa.com/og-image.png",
