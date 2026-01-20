@@ -13,8 +13,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mossesandvanesa.com"),
+
   title: "Mosses & Vanesa Wedding",
-  description: "Mosses and Vanesa are getting married on March 06, 2026 in Davao City, Philippines.",
+  description:
+    "Mosses and Vanesa are getting married on March 06, 2026 in Davao City, Philippines.",
+
+  openGraph: {
+    title: "Mosses & Vanesa Wedding",
+    description:
+      "Mosses and Vanesa are getting married on March 06, 2026 in Davao City, Philippines.",
+    url: "/",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Mosses & Vanesa Wedding",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
