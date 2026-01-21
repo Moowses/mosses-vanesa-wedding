@@ -546,7 +546,7 @@ export default function RsvpClient({ token }: { token: string }) {
             <div className="mt-4 text-center text-xs text-slate-500">
               Need help? info@mossesandvanesa.com / 09261142143
             </div>
-            <div className="mt-4 text-center text-xs text-slate-500">
+            <div className="mt-4 text-center text-base font-semibold text-slate-700">
             More info at{" "}
             <a
               href="https://www.mossesandvanesa.com"

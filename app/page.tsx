@@ -369,9 +369,9 @@ export default function Home() {
                 <li>Aika Parondo</li>
                 <li>Michelle Rafael</li>
                 <li>Vannessa Zyndrelle Rebuelta</li>
-                <li>Sofia Mariz Relles</li>
+                <li>Sofia Maris Relles</li>
                 <li>Neomi Victoriano</li>
-                <li>Angelica Ahman</li>
+                <li>Angelica Jade Ahmann</li>
                 <li>Anjoren Cajes</li>
               </ul>
             </div>
@@ -410,9 +410,9 @@ export default function Home() {
             </p>
             <div className="mt-4 space-y-2 text-white/85">
               <p>Engr. Joselito &amp; Mrs. Grace Mercado</p>
-              <p>Mr. Bill &amp; Mrs. Gina McManus</p>
+              <p>Mr. William &amp; Mrs. Gina McManus</p>
               <p>Mr. Edwin &amp; Mrs. Annie Salinas</p>
-              <p>Mr. Scott &amp; Mrs. Ruby Ahman</p>
+              <p>Mr. Thomas Scott &amp; Mrs. Ruby Ahmann</p>
               <p>Dr. Franklin &amp; Dr. Victoria Guillano</p>      
             </div>
           </div>
@@ -425,7 +425,7 @@ export default function Home() {
             <div className="mt-4 space-y-2 text-white/80">
               <p>Atty. Marlo &amp; Judge Rocelyn Guillano</p>
               <p>Mr. Allan &amp; Mrs. Novie Relles</p>
-              <p>Mr. Nelon &amp; Mrs. Olive Victoriano</p>
+              <p>Mr. Nelson &amp; Mrs. Olive Victoriano</p>
               <p>Mr. Raul &amp; Mrs. Rolinda Salazar</p>
               <p>Mr. Bern &amp; Mrs. Mara Damla</p>
             </div>
