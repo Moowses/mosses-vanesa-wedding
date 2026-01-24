@@ -2,21 +2,93 @@ import { NextResponse } from "next/server";
 import { verifyToken } from "@/lib/guestToken";
 import { db } from "@/lib/firebaseAdmin";
 
-// Prevent any caching issues in dev/prod
 export const dynamic = "force-dynamic";
+
+type CacheEntry = { exp: number; value: any };
+type RateEntry = { resetAt: number; count: number };
+
+const VERIFY_CACHE_TTL_MS = 5 * 60 * 1000;
+const RL_WINDOW_MS = 60 * 1000;
+const RL_MAX_PER_WINDOW = 12;
+
+const cache = new Map<string, CacheEntry>();
+const rate = new Map<string, RateEntry>();
+
+function now() {
+  return Date.now();
+}
+
+function getClientIp(req: Request) {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff && xff.trim().length > 0) return xff.split(",")[0].trim();
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp && realIp.trim().length > 0) return realIp.trim();
+  return "unknown";
+}
+
+function cacheGet(key: string) {
+  const e = cache.get(key);
+  if (!e) return null;
+  if (e.exp <= now()) {
+    cache.delete(key);
+    return null;
+  }
+  return e.value;
+}
+
+function cacheSet(key: string, value: any, ttlMs: number) {
+  cache.set(key, { exp: now() + ttlMs, value });
+  if (cache.size > 2000) {
+    const first = cache.keys().next().value;
+    if (first) cache.delete(first);
+  }
+}
+
+function checkRateLimit(key: string) {
+  const t = now();
+  const e = rate.get(key);
+  if (!e || e.resetAt <= t) {
+    rate.set(key, { resetAt: t + RL_WINDOW_MS, count: 1 });
+    return { ok: true, retryAfterSec: 0 };
+  }
+  if (e.count >= RL_MAX_PER_WINDOW) {
+    const retryAfterSec = Math.max(1, Math.ceil((e.resetAt - t) / 1000));
+    return { ok: false, retryAfterSec };
+  }
+  e.count += 1;
+  return { ok: true, retryAfterSec: 0 };
+}
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+
     const body = await req.json().catch(() => ({}));
     const token = body?.token;
 
-    if (!token || typeof token !== "string") {
+    const tokenStr = typeof token === "string" ? token : "";
+    const rlKey = `verify:${ip}:${tokenStr || "no-token"}`;
+    const rl = checkRateLimit(rlKey);
+
+    if (!rl.ok) {
+      return NextResponse.json(
+        { ok: false, error: "RATE_LIMITED" },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      );
+    }
+
+    if (!tokenStr) {
       return NextResponse.json({ ok: false, error: "MISSING_TOKEN" }, { status: 400 });
+    }
+
+    const cached = cacheGet(`verify:${tokenStr}`);
+    if (cached) {
+      return NextResponse.json(cached);
     }
 
     let payload: { guestId: string; exp?: number | null } | null = null;
     try {
-      payload = verifyToken(token);
+      payload = verifyToken(tokenStr);
     } catch {
       payload = null;
     }
@@ -28,7 +100,6 @@ export async function POST(req: Request) {
     const guestRef = db.collection("guests").doc(payload.guestId);
     const rsvpRef = db.collection("rsvps").doc(payload.guestId);
 
-    // Fetch both in parallel
     const [guestDoc, rsvpDoc] = await Promise.all([guestRef.get(), rsvpRef.get()]);
 
     if (!guestDoc.exists) {
@@ -38,16 +109,14 @@ export async function POST(req: Request) {
     const g = guestDoc.data() as any;
     const r = rsvpDoc.exists ? (rsvpDoc.data() as any) : null;
 
-    // Normalize fields
     const paxAllowed = Number(g.paxAllowed ?? g.PAX ?? 1);
     const email = typeof g.email === "string" ? g.email : null;
     const announcementOptIn =
       typeof g.announcementOptIn === "boolean" ? g.announcementOptIn : null;
 
-    // RSVP info for prefilling the form
     const rsvp = r
       ? {
-          attendance: r.attendance ?? null, // "yes" | "no"
+          attendance: r.attendance ?? null,
           paxAttending: Number(r.paxAttending ?? 0),
           message: typeof r.message === "string" ? r.message : "",
           submittedAt: r.submittedAt ?? null,
@@ -61,7 +130,7 @@ export async function POST(req: Request) {
           updatedAt: null,
         };
 
-    return NextResponse.json({
+    const response = {
       ok: true,
       guest: {
         guestId: guestDoc.id,
@@ -70,17 +139,16 @@ export async function POST(req: Request) {
         role: g.role ?? g.Role ?? "",
         relation: g.relation ?? g.Relation ?? "",
         rsvpSubmitted: !!g.rsvpSubmitted,
-
-        // NEW: expose email + consent so UI can decide whether to show input
         email,
         announcementOptIn,
       },
-
-      // NEW: include RSVP doc so form can prefill accurately
       rsvp,
-
       deadlineIso: process.env.RSVP_DEADLINE_ISO ?? null,
-    });
+    };
+
+    cacheSet(`verify:${tokenStr}`, response, VERIFY_CACHE_TTL_MS);
+
+    return NextResponse.json(response);
   } catch (err) {
     console.error("RSVP verify error:", err);
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
