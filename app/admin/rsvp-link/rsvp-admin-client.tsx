@@ -99,19 +99,23 @@ export default function RsvpAdminClient({ initialRows }: { initialRows: Row[] })
   const [showNotConfirmed, setShowNotConfirmed] = useState(true);
 
   const [editing, setEditing] = useState<Row | null>(null);
-
-  // ✅ Communication: message inbox
   const [msgLoading, setMsgLoading] = useState(false);
   const [msgErr, setMsgErr] = useState<string | null>(null);
   const [messages, setMessages] = useState<RsvpMessage[]>([]);
   const [msgSearch, setMsgSearch] = useState("");
   const [activeMsg, setActiveMsg] = useState<RsvpMessage | null>(null);
 
-  // ✅ Communication: announcement
   const [annSubject, setAnnSubject] = useState("");
   const [annBody, setAnnBody] = useState("");
   const [annOptInOnly, setAnnOptInOnly] = useState(true);
   const [annSending, setAnnSending] = useState(false);
+
+  const [annTotal, setAnnTotal] = useState(0);
+  const [annSent, setAnnSent] = useState(0);
+  const [annFailed, setAnnFailed] = useState(0);
+  const [annStatus, setAnnStatus] = useState<string | null>(null);
+  const [annErr, setAnnErr] = useState<string | null>(null);
+
 
   async function adminWrite(payload: any) {
     const res = await fetch("/api/admin/guest", {
@@ -165,43 +169,77 @@ export default function RsvpAdminClient({ initialRows }: { initialRows: Row[] })
     }
   }
 
-  // ✅ NEW: send announcement to RSVP emails (server route)
-  async function sendAnnouncement() {
-    if (!unlocked) return;
-    if (!annSubject.trim() || !annBody.trim()) {
-      alert("Subject and message are required.");
+  
+async function sendAnnouncement() {
+  if (!unlocked) return;
+
+  const subject = annSubject.trim();
+  const body = annBody.trim();
+
+  if (!subject || !body) {
+    alert("Subject and message are required.");
+    return;
+  }
+
+  // reset UI
+  setAnnSending(true);
+  setAnnErr(null);
+  setAnnStatus("Preparing recipients…");
+  setAnnTotal(0);
+  setAnnSent(0);
+  setAnnFailed(0);
+
+  try {
+    const res = await fetch("/api/admin/rsvp/announcement", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-code": code,
+      },
+      body: JSON.stringify({
+        subject,
+        body,
+        optInOnly: annOptInOnly,
+      }),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data?.ok) {
+      const msg = data?.error || `Request failed (${res.status})`;
+      setAnnErr(msg);
+      setAnnStatus(null);
       return;
     }
 
-    setAnnSending(true);
-    try {
-      const res = await fetch("/api/admin/rsvp/announcement", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-code": code,
-        },
-        body: JSON.stringify({
-          subject: annSubject.trim(),
-          body: annBody.trim(),
-          optInOnly: annOptInOnly,
-        }),
-      });
+    const total = Number(data.total || 0);
+    const sent = Number(data.sent || 0);
+    const failed = Number(data.failedCount || 0);
 
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.ok) {
-        throw new Error(data?.error || `Request failed (${res.status})`);
-      }
+    setAnnTotal(total);
+    setAnnSent(sent);
+    setAnnFailed(failed);
 
-      alert(`Announcement sent to ${data.sent || 0} recipient(s).`);
-      setAnnSubject("");
-      setAnnBody("");
-    } catch (e: any) {
-      alert(e?.message || "Failed to send announcement");
-    } finally {
-      setAnnSending(false);
-    }
+    setAnnStatus(
+      failed > 0
+        ? `Done. Sent ${sent}/${total}. Failed: ${failed}.`
+        : `Done. Sent ${sent}/${total}.`
+    );
+
+    // clear form
+    setAnnSubject("");
+    setAnnBody("");
+
+    // optional alert (can remove if you prefer inline UI only)
+    alert(`Announcement done. Sent ${sent}/${total}. Failed: ${failed}.`);
+  } catch (e: any) {
+    setAnnErr(e?.message || "Failed to send announcement");
+    setAnnStatus(null);
+  } finally {
+    setAnnSending(false);
   }
+}
+
 
   // auto-load messages when opening communication tab (after unlock)
   useEffect(() => {
@@ -674,19 +712,63 @@ export default function RsvpAdminClient({ initialRows }: { initialRows: Row[] })
                   />
                 </div>
 
-                <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                  <button
-                    disabled={!unlocked || annSending}
-                    onClick={sendAnnouncement}
-                    className={`rounded-xl px-4 py-2 text-sm text-white ${
-                      unlocked && !annSending
-                        ? "bg-emerald-700 hover:bg-emerald-800"
-                        : "bg-slate-300 cursor-not-allowed"
-                    }`}
-                  >
-                    {annSending ? "Sending…" : "Send Announcement"}
-                  </button>
-                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Status / progress */}
+                    <div className="w-full">
+                      {annErr ? (
+                        <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                          {annErr}
+                        </div>
+                      ) : annStatus ? (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                          {annStatus}
+                        </div>
+                      ) : null}
+
+                      {(annSending || annTotal > 0) ? (
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between text-xs text-slate-600">
+                            <span>
+                              {annSending ? "Sending…" : "Completed"}
+                            </span>
+                            <span>
+                              {annTotal > 0 ? `${annSent}/${annTotal}` : "—"}
+                              {annFailed > 0 ? ` • Failed ${annFailed}` : ""}
+                            </span>
+                          </div>
+                          <div className="mt-1 h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                            <div
+                              className="h-2 rounded-full bg-emerald-600 transition-all"
+                              style={{
+                                width:
+                                  annTotal > 0 ? `${Math.min(100, (annSent / annTotal) * 100)}%` : "25%",
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {!unlocked ? (
+                        <div className="mt-2 text-xs text-slate-500">Unlock to send announcements.</div>
+                      ) : null}
+                    </div>
+
+                    {/* Button */}
+                    <div className="shrink-0">
+                      <button
+                        disabled={!unlocked || annSending}
+                        onClick={sendAnnouncement}
+                        className={`rounded-xl px-4 py-2 text-sm text-white ${
+                          unlocked && !annSending
+                            ? "bg-emerald-700 hover:bg-emerald-800"
+                            : "bg-slate-300 cursor-not-allowed"
+                        }`}
+                      >
+                        {annSending ? "Sending…" : "Send Announcement"}
+                      </button>
+                    </div>
+                  </div>
+
 
                 {!unlocked ? (
                   <div className="text-xs text-slate-500">Unlock to send announcements.</div>

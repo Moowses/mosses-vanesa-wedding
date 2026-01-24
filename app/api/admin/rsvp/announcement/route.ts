@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import { Resend } from "resend";
 
+const RATE_DELAY_MS = 600; // safe vs Resend 2 req/sec
+const MAX_RECIPIENTS = 800;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 function isAuthed(req: Request) {
-  const code = req.headers.get("x-admin-code");
-  return code === "1433";
+  return req.headers.get("x-admin-code") === "1433";
 }
 
 const esc = (s: string) =>
@@ -15,37 +19,40 @@ const esc = (s: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-function buildAnnouncementHtml(opts: { subject: string; body: string }) {
-  const safeBody = esc(opts.body).replace(/\n/g, "<br/>");
+function personalize(
+  raw: string,
+  vars: { fullName: string; paxAllowed: number }
+) {
+  return raw
+    .replace(/#fullname/gi, vars.fullName)
+    .replace(/#paxallowed/gi, String(vars.paxAllowed));
+}
 
+function buildHtml(subject: string, bodyHtml: string) {
   return `
   <div style="background:#f6f6f6;padding:24px 0;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#222;">
+    <table width="100%" cellpadding="0" cellspacing="0"
+      style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;font-family:Arial,Helvetica,sans-serif;">
       <tr>
-        <td style="padding:0;">
-          <img
-            src="https://mossesandvanesa.com/headeremail.png"
-            alt="Mosses & Vanesa"
-            width="600"
-            style="display:block;width:100%;height:auto;"
-          />
+        <td>
+          <img src="https://mossesandvanesa.com/headeremail.png"
+               style="width:100%;display:block" />
         </td>
       </tr>
-
       <tr>
-        <td style="padding:22px 28px;">
-          <h2 style="margin:0 0 12px;font-size:18px;">${esc(opts.subject)}</h2>
+        <td style="padding:22px 28px;color:#222;">
+          <h2 style="margin:0 0 12px;font-size:18px;">${esc(subject)}</h2>
           <div style="font-size:15px;line-height:1.7;">
-            ${safeBody}
+            ${bodyHtml}
           </div>
-
-          <hr style="border:none;border-top:1px solid #eee;margin:22px 0;" />
-
-          <p style="margin:0;font-size:13px;color:#666;">
-            For more wedding details, visit:
-            <a href="https://mossesandvanesa.com" style="color:#c07a5a;text-decoration:none;font-weight:bold;">
+          <hr style="margin:22px 0;border:none;border-top:1px solid #eee;" />
+          <p style="font-size:13px;color:#666;">
+            Visit
+            <a href="https://mossesandvanesa.com"
+               style="color:#c07a5a;font-weight:bold;text-decoration:none;">
               mossesandvanesa.com
             </a>
+            for details.
           </p>
         </td>
       </tr>
@@ -54,65 +61,134 @@ function buildAnnouncementHtml(opts: { subject: string; body: string }) {
   `.trim();
 }
 
+async function sendWithRetry(resend: Resend, payload: any) {
+  try {
+    return await resend.emails.send(payload);
+  } catch (err: any) {
+    const msg = String(err?.message || "");
+    const status = err?.status || err?.statusCode || 0;
+    if (status !== 429 && !msg.includes("429")) throw err;
+    await sleep(1100);
+    return await resend.emails.send(payload);
+  }
+}
+
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __ANNOUNCE_LOCK__: boolean | undefined;
+  // eslint-disable-next-line no-var
+  var __ANNOUNCE_LAST__: number | undefined;
+}
+
 export async function POST(req: Request) {
   if (!isAuthed(req)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const payload = await req.json().catch(() => ({}));
-  const subject = String(payload.subject || "").trim();
-  const body = String(payload.body || "").trim();
-  const optInOnly = !!payload.optInOnly;
+  if (globalThis.__ANNOUNCE_LOCK__) {
+    return NextResponse.json(
+      { ok: false, error: "Announcement already running" },
+      { status: 429 }
+    );
+  }
+
+  if (Date.now() - (globalThis.__ANNOUNCE_LAST__ || 0) < 20_000) {
+    return NextResponse.json(
+      { ok: false, error: "Please wait before sending again" },
+      { status: 429 }
+    );
+  }
+
+  const { subject, body, optInOnly } = await req.json();
 
   if (!subject || !body) {
     return NextResponse.json(
-      { ok: false, error: "Subject and body are required" },
+      { ok: false, error: "Subject and body required" },
       { status: 400 }
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
+  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const from = process.env.EMAIL_FROM!;
 
-  if (!apiKey || !from) {
+  // Get RSVP emails
+  const rsvpsSnap = await db.collection("rsvps").get();
+  const emails = Array.from(
+    new Set(
+      rsvpsSnap.docs
+        .map((d) => d.data())
+        .filter((x: any) => x?.email && (!optInOnly || x.announcementOptIn))
+        .map((x: any) => String(x.email).toLowerCase().trim())
+    )
+  );
+
+  if (emails.length > MAX_RECIPIENTS) {
     return NextResponse.json(
-      { ok: false, error: "Missing RESEND_API_KEY or EMAIL_FROM env vars" },
-      { status: 500 }
+      { ok: false, error: "Too many recipients" },
+      { status: 400 }
     );
   }
 
-  const resend = new Resend(apiKey);
+  //  Build email → guest data map
+  const guestsSnap = await db.collection("guests").get();
+  const guestMap = new Map<
+    string,
+    { fullName: string; paxAllowed: number }
+  >();
 
-  const snap = await db.collection("rsvps").get();
+  for (const d of guestsSnap.docs) {
+    const g: any = d.data();
+    const email = String(g?.email || "").toLowerCase().trim();
+    if (!email) continue;
 
-  const emails = snap.docs
-    .map((d) => d.data() as any)
-    .filter((x) => !!x?.email)
-    .filter((x) => (optInOnly ? !!x?.announcementOptIn : true))
-    .map((x) => String(x.email).trim().toLowerCase())
-    .filter((e) => e.includes("@"));
-
-  const uniqueEmails = Array.from(new Set(emails));
-
-  const html = buildAnnouncementHtml({ subject, body });
-
-  let sent = 0;
-  const failed: string[] = [];
-
-  // Safe send loop (you can optimize batching later)
-  for (const to of uniqueEmails) {
-    try {
-      await resend.emails.send({
-        from,
-        to,
-        subject,
-        html,
-      });
-      sent++;
-    } catch {
-      failed.push(to);
-    }
+    guestMap.set(email, {
+      fullName: g.fullName || "Guest",
+      paxAllowed: Math.max(1, Number(g.paxAllowed || 1)),
+    });
   }
 
-  return NextResponse.json({ ok: true, sent, failedCount: failed.length });
+  let sent = 0;
+  let failed = 0;
+
+  globalThis.__ANNOUNCE_LOCK__ = true;
+  globalThis.__ANNOUNCE_LAST__ = Date.now();
+
+  try {
+    for (const to of emails) {
+      const guest = guestMap.get(to) ?? {
+        fullName: "Guest",
+        paxAllowed: 1,
+      };
+
+      const subj = personalize(subject, guest);
+      const bodyHtml = esc(
+        personalize(body, guest)
+      ).replace(/\n/g, "<br/>");
+
+      try {
+        await sendWithRetry(resend, {
+          from,
+          to,
+          subject: subj,
+          html: buildHtml(subj, bodyHtml),
+        });
+        sent++;
+      } catch {
+        failed++;
+      }
+
+      await sleep(RATE_DELAY_MS);
+    }
+  } finally {
+    globalThis.__ANNOUNCE_LOCK__ = false;
+    globalThis.__ANNOUNCE_LAST__ = Date.now();
+  }
+
+  return NextResponse.json({
+    ok: true,
+    sent,
+    failedCount: failed,
+    total: emails.length,
+  });
 }
