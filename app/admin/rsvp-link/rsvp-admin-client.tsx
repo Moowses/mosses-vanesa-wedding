@@ -36,14 +36,14 @@ function roleRank(role: string) {
 type TabKey = "manage" | "tables" | "comm";
 
 type RsvpMessage = {
-  id: string; // doc id
+  id: string; 
   guestId?: string;
   email?: string;
   attendance?: string;
   announcementOptIn?: boolean;
   paxAttending?: number;
   message?: string;
-  submittedAt?: string | null; // server formatted
+  submittedAt?: string | null; 
 };
 
 function guestNameFrom(rows: Row[], guestId: string | undefined, fallbackId: string) {
@@ -144,7 +144,7 @@ export default function RsvpAdminClient({ initialRows }: { initialRows: Row[] })
     return data;
   }
 
-  // ✅ NEW: load RSVP messages from Firestore (server route)
+  // Load messages
   async function loadMessages() {
     if (!unlocked) return;
     setMsgLoading(true);
