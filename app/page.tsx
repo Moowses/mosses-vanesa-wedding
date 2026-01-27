@@ -317,7 +317,7 @@ export default function Home() {
 
           {/* Families */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Bride Family
               </p>
@@ -327,7 +327,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Groom Family
               </p>
@@ -340,7 +340,7 @@ export default function Home() {
 
           {/* Maid of Honor | Best Man */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Maid of Honor
               </p>
@@ -349,7 +349,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Best Man
               </p>
@@ -361,7 +361,7 @@ export default function Home() {
 
           {/* Bridesmaids | Groomsmen */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Bridesmaids
               </p>
@@ -376,7 +376,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Groomsmen
               </p>
