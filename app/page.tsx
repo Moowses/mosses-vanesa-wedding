@@ -224,20 +224,22 @@ export default function Home() {
 
         {/* Story (2-column like reference) */}
         
-        <section id="story" className="px-6 pb-14 md:px-16">
+        <section id="story" className="px-5 pb-14 md:px-14">
           <div className="grid gap-10 md:grid-cols-2 md:items-start">
             <div className="relative w-full">
-                <Image
-                  src="/01.png"
+              <Image
+                  src="/01.jpg"
                   alt="Wedding couple"
                   width={1000}
                   height={750}
                   priority
                   className="
-                    w-full object-cover rounded-2xl
+                    w-full
                     h-[320px]
                     md:h-[720px]
                     lg:h-[400px]
+                    object-cover
+                    rounded-2xl
                   "
                 />
               </div>

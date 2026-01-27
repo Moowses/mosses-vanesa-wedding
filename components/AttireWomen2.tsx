@@ -24,25 +24,31 @@ const MEN_GALLERY = ["/outfitformen.png", "/outfitformen1.png", "/outfitformen2.
 
 type ModalKey = null | "womenSponsor" | "womenGuest" | "men";
 
-const btn =
-  "w-full inline-flex items-center justify-center rounded-2xl border border-black/10 bg-white/75 " +
-  "px-4 py-3 text-sm font-semibold text-[#2f2f2f] ring-1 ring-white/30 " +
-  "shadow-[0_12px_30px_rgba(0,0,0,0.08)] hover:bg-white active:scale-[0.99] transition";
+const baseBtn =
+  "w-full inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-semibold " +
+  "transition active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/20";
+
+const btnSecondary =
+  baseBtn +
+  " border border-black/10 bg-white/70 text-[#2f2f2f] ring-1 ring-white/30 " +
+  "shadow-[0_10px_26px_rgba(0,0,0,0.08)] hover:bg-white";
+
+const btnPrimary =
+  baseBtn +
+  " border border-black/10 bg-[#2f2f2f] text-white ring-1 ring-white/20 " +
+  "shadow-[0_14px_34px_rgba(0,0,0,0.14)] hover:bg-[#242424]";
 
 function DotPalette() {
   return (
     <div className="flex flex-wrap items-center gap-3">
       {WOMEN_COLORS.map((c) => (
-        <div key={c.name} className="flex items-center gap-2">
-          <span
-            className="h-9 w-9 rounded-full ring-1 ring-black/10 shadow-[0_10px_18px_rgba(0,0,0,0.08)]"
-            style={{ background: c.hex }}
-            aria-hidden
-          />
-          <span className="text-[10px] uppercase tracking-[0.22em] text-[#7a7a7a]">
-            {c.name}
-          </span>
-        </div>
+        <span
+          key={c.name}
+          title={c.name}
+          aria-label={c.name}
+          className="h-9 w-9 rounded-full ring-1 ring-black/10 shadow-[0_10px_18px_rgba(0,0,0,0.08)]"
+          style={{ background: c.hex }}
+        />
       ))}
     </div>
   );
@@ -50,6 +56,16 @@ function DotPalette() {
 
 export default function AttireWomen() {
   const [open, setOpen] = useState<ModalKey>(null);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
+
+  useEffect(() => {
+    // detect mobile / touch to show the right hint
+    const mq = window.matchMedia?.("(pointer: coarse)");
+    const update = () => setIsCoarsePointer(Boolean(mq?.matches));
+    update();
+    mq?.addEventListener?.("change", update);
+    return () => mq?.removeEventListener?.("change", update);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -92,9 +108,7 @@ export default function AttireWomen() {
             Please wear <span className="font-semibold">plain, solid-colored</span> dresses in soft,
             romantic tones. Light, flowy silhouettes are encouraged for an elegant, cohesive, and timeless look.
           </p>
-          <p className="text-xs text-[#7a7a7a]">
-            Tip: Keep patterns minimal and stick to the palette.
-          </p>
+          <p className="text-xs text-[#7a7a7a]">Tip: Keep patterns minimal and stick to the palette.</p>
         </div>
       );
     }
@@ -104,9 +118,9 @@ export default function AttireWomen() {
         <div className="space-y-3 text-sm leading-7 text-[#5b5b5b]">
           <p className="font-semibold text-[#2f2f2f]">For Guest Women</p>
           <p>
-            Printed or patterned dresses are welcome—think <span className="font-semibold">light, whimsical</span>{" "}
-            styles with romantic details (florals, soft prints, delicate textures), as long as the overall colors stay
-            soft and harmonious.
+            Printed or patterned dresses are welcome—think{" "}
+            <span className="font-semibold">light, whimsical</span> styles with romantic details (florals,
+            soft prints, delicate textures), as long as the overall colors stay soft and harmonious.
           </p>
           <p className="text-xs text-[#7a7a7a]">
             Tip: Choose airy prints, not bold high-contrast patterns.
@@ -127,9 +141,7 @@ export default function AttireWomen() {
           </div>
           <div>
             <p className="font-semibold text-[#2f2f2f]">Guest Men</p>
-            <p>
-              Same guide: Barong Tagalog with black slacks and black shoes for a clean, classic, coordinated look.
-            </p>
+            <p>Same guide: Barong Tagalog with black slacks and black shoes for a clean, classic look.</p>
           </div>
         </div>
       );
@@ -140,12 +152,17 @@ export default function AttireWomen() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      {/* two premium cards: Women + Men */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* WOMEN */}
         <div className="relative overflow-hidden rounded-3xl bg-white/70 p-7 ring-1 ring-black/10 shadow-[0_18px_55px_rgba(0,0,0,0.10)]">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full blur-3xl opacity-60" style={{ background: "#FADADD" }} />
-          <div className="pointer-events-none absolute -left-24 -bottom-24 h-72 w-72 rounded-full blur-3xl opacity-55" style={{ background: "#D7F1F6" }} />
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full blur-3xl opacity-60"
+            style={{ background: "#FADADD" }}
+          />
+          <div
+            className="pointer-events-none absolute -left-24 -bottom-24 h-72 w-72 rounded-full blur-3xl opacity-55"
+            style={{ background: "#D7F1F6" }}
+          />
 
           <p className="text-[11px] uppercase tracking-[0.28em] text-[#7a7a7a]">Attire for Women</p>
           <p className="mt-3 text-lg font-semibold text-[#2f2f2f]">Whimsical, romantic, and light</p>
@@ -158,19 +175,27 @@ export default function AttireWomen() {
           </div>
 
           <div className="mt-7 grid grid-cols-2 gap-3">
-            <button type="button" onClick={() => setOpen("womenSponsor")} className={btn}>
-              View Sponsor Women Attire Samples
+            {/* Sponsor = secondary */}
+            <button type="button" onClick={() => setOpen("womenSponsor")} className={btnSecondary}>
+              View Sponsor Attire
             </button>
-            <button type="button" onClick={() => setOpen("womenGuest")} className={btn}>
-              View Guest Women Attire Samples
+            {/* Guest = primary */}
+            <button type="button" onClick={() => setOpen("womenGuest")} className={btnPrimary}>
+              View Guest Attire
             </button>
           </div>
         </div>
 
         {/* MEN */}
         <div className="relative overflow-hidden rounded-3xl bg-white/70 p-7 ring-1 ring-black/10 shadow-[0_18px_55px_rgba(0,0,0,0.10)]">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-55" style={{ background: "#D8CFE3" }} />
-          <div className="pointer-events-none absolute -left-24 -bottom-24 h-72 w-72 rounded-full blur-3xl opacity-45" style={{ background: "#FFF4B8" }} />
+          <div
+            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-55"
+            style={{ background: "#D8CFE3" }}
+          />
+          <div
+            className="pointer-events-none absolute -left-24 -bottom-24 h-72 w-72 rounded-full blur-3xl opacity-45"
+            style={{ background: "#FFF4B8" }}
+          />
 
           <p className="text-[11px] uppercase tracking-[0.28em] text-[#7a7a7a]">Attire for Men</p>
           <p className="mt-3 text-lg font-semibold text-[#2f2f2f]">Classic and coordinated</p>
@@ -179,7 +204,7 @@ export default function AttireWomen() {
           </p>
 
           <div className="mt-7">
-            <button type="button" onClick={() => setOpen("men")} className={btn}>
+            <button type="button" onClick={() => setOpen("men")} className={btnPrimary}>
               View Men Attire Samples
             </button>
           </div>
@@ -191,6 +216,7 @@ export default function AttireWomen() {
               width={1200}
               height={800}
               className="h-[220px] w-full object-cover"
+              priority={false}
             />
           </div>
         </div>
@@ -214,16 +240,14 @@ export default function AttireWomen() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 text-left">
                   <p className="text-[11px] uppercase tracking-[0.28em] text-[#7a7a7a]">Attire Guide</p>
-                  <h3 className="mt-2 text-xl font-semibold text-[#2f2f2f] sm:text-2xl">
-                    {modalTitle}
-                  </h3>
+                  <h3 className="mt-2 text-xl font-semibold text-[#2f2f2f] sm:text-2xl">{modalTitle}</h3>
                   {modalCopy ? <div className="mt-4">{modalCopy}</div> : null}
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setOpen(null)}
-                  className="shrink-0 rounded-full bg-white/70 p-2 text-[#4a4a4a] ring-1 ring-black/10 hover:bg-white transition"
+                  className="shrink-0 rounded-full bg-white/70 p-2 text-[#4a4a4a] ring-1 ring-black/10 hover:bg-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
                   aria-label="Close"
                 >
                   ✕
@@ -251,7 +275,13 @@ export default function AttireWomen() {
               </div>
 
               <div className="pt-5 text-center text-xs text-[#7a7a7a]">
-                Press <span className="font-semibold">Esc</span> to close.
+                {isCoarsePointer ? (
+                  <span>Tap outside to close.</span>
+                ) : (
+                  <span>
+                    Press <span className="font-semibold">Esc</span> to close.
+                  </span>
+                )}
               </div>
             </div>
           </div>
