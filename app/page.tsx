@@ -413,6 +413,7 @@ export default function Home() {
             <div className="mt-4 space-y-2 text-white/85">
               <p>Engr. Joselito &amp; Mrs. Grace Mercado</p>
               <p>Mr. William &amp; Mrs. Gina McManus</p>
+              <p>Engr. Pregentino &amp; Mrs. Regina Brieta</p>
               <p>Mr. Edwin &amp; Mrs. Annie Salinas</p>
               <p>Mr. Thomas Scott &amp; Mrs. Ruby Ahmann</p>
               <p>Dr. Franklin &amp; Dr. Victoria Guillano</p>      
