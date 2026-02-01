@@ -87,11 +87,11 @@ function NavyPanel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden bg-[#151B2E] px-6 py-14 md:px-16">
+    <section className="relative overflow-hidden bg-[#F4C2C2] px-6 py-14 md:px-16">
       {/* soft florals vibe without needing PNGs */}
       <div className="pointer-events-none absolute inset-0 opacity-100">
-        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-35" style={{ background: "#F7B7A3" }} />
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-28" style={{ background: "#D8CFE3" }} />
+        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-35" style={{ background: "#f1ae9a" }} />
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-28" style={{ background: "#b9a3d3" }} />
         <div className="absolute -left-24 -bottom-24 h-72 w-72 rounded-full blur-3xl opacity-22" style={{ background: "#D7F1F6" }} />
         <div className="absolute -right-24 -bottom-24 h-72 w-72 rounded-full blur-3xl opacity-22" style={{ background: "#FFF4B8" }} />
         <div className="absolute inset-6 rounded-[40px] ring-1 ring-white/10" />
@@ -319,7 +319,7 @@ export default function Home() {
 
           {/* Families */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+            <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Bride Family
               </p>
@@ -329,7 +329,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+            <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Groom Family
               </p>
@@ -342,7 +342,7 @@ export default function Home() {
 
           {/* Maid of Honor | Best Man */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+            <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Maid of Honor
               </p>
@@ -351,7 +351,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+            <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Best Man
               </p>
@@ -363,7 +363,7 @@ export default function Home() {
 
           {/* Bridesmaids | Groomsmen */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+            <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Bridesmaids
               </p>
@@ -378,7 +378,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+            <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
                 Groomsmen
               </p>
@@ -395,7 +395,7 @@ export default function Home() {
           </div>
 
           {/* Bearers */}
-          <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+          <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
             <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
               Bearers
             </p>
@@ -406,7 +406,7 @@ export default function Home() {
           </div>
 
           {/* Principal Sponsors */}
-          <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+          <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
             <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
               Principal Sponsors
             </p>
@@ -421,7 +421,7 @@ export default function Home() {
           </div>
 
           {/* Secondary Sponsors */}
-          <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10 text-center">
+          <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
             <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
               Secondary Sponsors
             </p>
