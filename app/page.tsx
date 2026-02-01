@@ -400,8 +400,9 @@ export default function Home() {
               Bearers
             </p>
             <div className="mt-4 space-y-2 text-white/85">
-              <p>Ring and Coin Bearer: Markwin Ybanez</p>
+              <p>Ring Bearer: Markwin Ybanez</p>
               <p>Bible Bearer: Olram Joseph Guillano</p>
+              <p>Coin Bearer: Macxiiee Balagosa</p>
             </div>
           </div>
 
