@@ -11,6 +11,7 @@ type RouteItem = {
   toLabel: string;
   from: LatLon;
   to: LatLon;
+  mode: "air" | "car";
 };
 
 const routes: RouteItem[] = [
@@ -20,6 +21,7 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 41.8781, lon: -87.6298 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "air",
   },
   {
     id: "florida",
@@ -27,6 +29,15 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 25.7617, lon: -80.1918 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "air",
+  },
+  {
+    id: "canada",
+    fromLabel: "Canada",
+    toLabel: "Davao City",
+    from: { lat: 43.6532, lon: -79.3832 },
+    to: { lat: 7.1907, lon: 125.4553 },
+    mode: "air",
   },
   {
     id: "singapore",
@@ -34,6 +45,15 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 1.3521, lon: 103.8198 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "air",
+  },
+  {
+    id: "cavite",
+    fromLabel: "Cavite City",
+    toLabel: "Davao City",
+    from: { lat: 14.4793, lon: 120.8970 },
+    to: { lat: 7.1907, lon: 125.4553 },
+    mode: "air",
   },
   {
     id: "cebu",
@@ -41,6 +61,7 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 10.3157, lon: 123.8854 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "air",
   },
   {
     id: "cdo",
@@ -48,6 +69,7 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 8.4542, lon: 124.6319 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "car",
   },
   {
     id: "mati",
@@ -55,6 +77,7 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 6.9551, lon: 126.216 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "car",
   },
   {
     id: "surallah",
@@ -62,6 +85,7 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 6.3753, lon: 124.7474 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "car",
   },
   {
     id: "mlang",
@@ -69,6 +93,7 @@ const routes: RouteItem[] = [
     toLabel: "Davao City",
     from: { lat: 6.9476, lon: 124.8809 },
     to: { lat: 7.1907, lon: 125.4553 },
+    mode: "car",
   },
 ];
 
@@ -88,7 +113,7 @@ function makeLineFeature(route: RouteItem) {
 
 export default function RouteMap() {
   const sequence = useMemo(
-    () => ["chicago", "florida", "singapore", "cebu", "cdo", "mati", "surallah", "mlang", "__overview__", "florida"],
+    () => ["chicago", "florida", "canada", "singapore", "cavite", "cebu", "cdo", "mati", "surallah", "mlang", "__overview__", "florida"],
     []
   );
   const [seqIndex, setSeqIndex] = useState(0);
@@ -112,13 +137,14 @@ export default function RouteMap() {
 
     mapRef.current = map;
 
-    const plane = document.createElement("div");
-    plane.style.width = "14px";
-    plane.style.height = "14px";
-    plane.style.borderRadius = "9999px";
-    plane.style.background = "#7f3022";
-    plane.style.boxShadow = "0 0 0 2px rgba(255,255,255,0.8)";
-    planeRef.current = new maplibregl.Marker({ element: plane, anchor: "center" })
+    const vehicle = document.createElement("div");
+    vehicle.style.fontSize = "16px";
+    vehicle.style.lineHeight = "1";
+    vehicle.style.filter = "drop-shadow(0 0 2px rgba(255,255,255,0.9))";
+    vehicle.style.color = "#111111";
+    vehicle.style.fontWeight = "700";
+    vehicle.textContent = selected?.mode === "car" ? "🚗" : "✈︎";
+    planeRef.current = new maplibregl.Marker({ element: vehicle, anchor: "center" })
       .setLngLat([selected?.from.lon ?? 125.4553, selected?.from.lat ?? 7.1907])
       .addTo(map);
 
@@ -198,6 +224,11 @@ export default function RouteMap() {
       map.easeTo({ center: [118, 10], zoom: 2.2, duration: 1800 });
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       return;
+    }
+
+    const markerEl = planeRef.current?.getElement();
+    if (markerEl) {
+      markerEl.textContent = selected.mode === "car" ? "🚗" : "✈︎";
     }
 
     const bounds: LngLatBoundsLike = [[selected.from.lon, selected.from.lat], [selected.to.lon, selected.to.lat]];
