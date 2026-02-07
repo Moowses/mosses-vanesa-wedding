@@ -200,6 +200,8 @@ async function sendAnnouncement() {
         subject,
         body,
         optInOnly: annOptInOnly,
+        audience: "guests",
+        confirmProduction: true,
       }),
     });
 
