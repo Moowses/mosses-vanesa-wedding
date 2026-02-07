@@ -56,16 +56,6 @@ function DotPalette() {
 
 export default function AttireWomen() {
   const [open, setOpen] = useState<ModalKey>(null);
-  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
-
-  useEffect(() => {
-    // detect mobile / touch to show the right hint
-    const mq = window.matchMedia?.("(pointer: coarse)");
-    const update = () => setIsCoarsePointer(Boolean(mq?.matches));
-    update();
-    mq?.addEventListener?.("change", update);
-    return () => mq?.removeEventListener?.("change", update);
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -274,15 +264,6 @@ export default function AttireWomen() {
                 ))}
               </div>
 
-              <div className="pt-5 text-center text-xs text-[#7a7a7a]">
-                {isCoarsePointer ? (
-                  <span>Tap outside to close.</span>
-                ) : (
-                  <span>
-                    Press <span className="font-semibold">Esc</span> to close.
-                  </span>
-                )}
-              </div>
             </div>
           </div>
         </div>

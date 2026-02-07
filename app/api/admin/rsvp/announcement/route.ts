@@ -47,12 +47,12 @@ function buildHtml(subject: string, bodyHtml: string) {
           </div>
           <hr style="margin:22px 0;border:none;border-top:1px solid #eee;" />
           <p style="font-size:13px;color:#666;">
-            Visit
-            <a href="https://mossesandvanesa.com"
+            View the Live Wall at
+            <a href="https://www.mossesandvanesa.com#live"
                style="color:#c07a5a;font-weight:bold;text-decoration:none;">
-              mossesandvanesa.com
+              www.mossesandvanesa.com#live
             </a>
-            for details.
+            .
           </p>
         </td>
       </tr>
@@ -100,11 +100,24 @@ export async function POST(req: Request) {
     );
   }
 
-  const { subject, body, optInOnly } = await req.json();
+  const { subject, body, optInOnly, audience, confirmProduction, dryRun } = await req.json();
 
   if (!subject || !body) {
     return NextResponse.json(
       { ok: false, error: "Subject and body required" },
+      { status: 400 }
+    );
+  }
+
+  const selectedAudience = audience === "guestbackup" ? "guestbackup" : "guests";
+  const isDryRun = dryRun === true;
+
+  if (selectedAudience === "guests" && !isDryRun && confirmProduction !== true) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "confirmProduction=true is required when sending to guests",
+      },
       { status: 400 }
     );
   }
@@ -131,7 +144,7 @@ export async function POST(req: Request) {
   }
 
   //  Build email → guest data map
-  const guestsSnap = await db.collection("guests").get();
+  const guestsSnap = await db.collection(selectedAudience).get();
   const guestMap = new Map<
     string,
     { fullName: string; paxAllowed: number }
@@ -148,6 +161,26 @@ export async function POST(req: Request) {
     });
   }
 
+  const recipients = emails.filter((email) => guestMap.has(email));
+
+  if (recipients.length > MAX_RECIPIENTS) {
+    return NextResponse.json(
+      { ok: false, error: "Too many recipients" },
+      { status: 400 }
+    );
+  }
+
+  if (isDryRun) {
+    return NextResponse.json({
+      ok: true,
+      dryRun: true,
+      audience: selectedAudience,
+      total: recipients.length,
+      sent: 0,
+      failedCount: 0,
+    });
+  }
+
   let sent = 0;
   let failed = 0;
 
@@ -155,7 +188,7 @@ export async function POST(req: Request) {
   globalThis.__ANNOUNCE_LAST__ = Date.now();
 
   try {
-    for (const to of emails) {
+    for (const to of recipients) {
       const guest = guestMap.get(to) ?? {
         fullName: "Guest",
         paxAllowed: 1,
@@ -187,8 +220,10 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
+    audience: selectedAudience,
+    dryRun: false,
     sent,
     failedCount: failed,
-    total: emails.length,
+    total: recipients.length,
   });
 }

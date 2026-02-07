@@ -2,6 +2,7 @@
 import Image from "next/image";
 import AttireWomen from "@/components/AttireWomen2";
 import GallerySlider from "@/components/GallerySlider";
+import LiveMessagesSection from "@/components/messages/LiveMessagesSection";
 import { Allura, Comfortaa } from "next/font/google";
 
 const comfortaa = Comfortaa({
@@ -446,6 +447,13 @@ export default function Home() {
           <SectionTitle eyebrow="Moments" title="Gallery" subtitle="A few frames from our journey." />
           <div className="mt-10">
             <GallerySlider />
+          </div>
+        </section>
+
+        <section id="live" className="px-6 py-14 md:px-16">
+          <SectionTitle eyebrow="Live Wall" title="Messages & Routes" subtitle="Guest wishes and travel paths in one view." />
+          <div className="mt-10">
+            <LiveMessagesSection />
           </div>
         </section>
 

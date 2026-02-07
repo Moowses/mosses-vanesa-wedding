@@ -225,9 +225,6 @@ export default function AttireGuide() {
                 ))}
               </div>
 
-              <div className="pt-4 text-center text-xs text-slate-500">
-                Tip: Press <span className="font-semibold">Esc</span> to close.
-              </div>
             </div>
           </div>
         </div>

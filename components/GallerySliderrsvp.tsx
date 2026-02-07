@@ -64,11 +64,11 @@ export default function GalleryCollageSlider() {
         ))}
       </div>
 
-      {/* Photographer Badge - LEFT SIDE */}
+      {/* Photographer Credit */}
       <Link
         href="https://www.facebook.com/marlonguillanophotography"
         target="_blank"
-        className="absolute bottom-4 left-4 z-10"
+        className="mt-4 inline-flex md:absolute md:bottom-4 md:left-4 md:z-10"
       >
         <div className="flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-xs text-white backdrop-blur-md hover:bg-black/75 transition">
           <span className="font-medium">Captured & Sponsored by</span>
