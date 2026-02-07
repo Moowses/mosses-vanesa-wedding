@@ -11,6 +11,14 @@ type WallMessage = {
   submittedAt: string | null;
 };
 
+function timestampToIso(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const maybe = value as { toDate?: () => Date };
+  if (typeof maybe.toDate !== "function") return null;
+  const d = maybe.toDate();
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 async function loadMessages(): Promise<WallMessage[]> {
   const snap = await db.collection("rsvps").orderBy("submittedAt", "desc").limit(500).get();
 
@@ -22,7 +30,7 @@ async function loadMessages(): Promise<WallMessage[]> {
         guestId: String(x.guestId ?? doc.id),
         message: String(x.message ?? "").trim(),
         attendance: (x.attendance ?? null) as "yes" | "no" | null,
-        submittedAt: x.submittedAt?.toDate ? x.submittedAt.toDate().toISOString() : null,
+        submittedAt: timestampToIso(x.submittedAt),
       };
     })
     .filter((m) => m.message.length > 0);
