@@ -62,7 +62,6 @@ function badgeAttendance(att?: string) {
 
 function fmtDate(s?: string | null) {
   if (!s) return "—";
-  // already formatted on server ideally, but keep safe
   const d = new Date(s);
   if (Number.isNaN(d.getTime())) return s;
   return d.toLocaleString(undefined, {
@@ -143,8 +142,6 @@ export default function RsvpAdminClient({ initialRows }: { initialRows: Row[] })
 
     return data;
   }
-
-  // Load messages
   async function loadMessages() {
     if (!unlocked) return;
     setMsgLoading(true);
@@ -180,8 +177,6 @@ async function sendAnnouncement() {
     alert("Subject and message are required.");
     return;
   }
-
-  // reset UI
   setAnnSending(true);
   setAnnErr(null);
   setAnnStatus("Preparing recipients…");
@@ -227,12 +222,8 @@ async function sendAnnouncement() {
         ? `Done. Sent ${sent}/${total}. Failed: ${failed}.`
         : `Done. Sent ${sent}/${total}.`
     );
-
-    // clear form
     setAnnSubject("");
     setAnnBody("");
-
-    // optional alert (can remove if you prefer inline UI only)
     alert(`Announcement done. Sent ${sent}/${total}. Failed: ${failed}.`);
   } catch (e: any) {
     setAnnErr(e?.message || "Failed to send announcement");
@@ -241,15 +232,10 @@ async function sendAnnouncement() {
     setAnnSending(false);
   }
 }
-
-
-  // auto-load messages when opening communication tab (after unlock)
   useEffect(() => {
     if (tab !== "comm") return;
     if (!unlocked) return;
-    // only load once if empty
     if (messages.length === 0 && !msgLoading) loadMessages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, unlocked]);
 
   const filteredRows = useMemo(() => {
@@ -389,7 +375,7 @@ async function sendAnnouncement() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
-        {/* Header */}
+        
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="text-xl md:text-2xl font-semibold">RSVP Admin</h1>
 
@@ -418,7 +404,7 @@ async function sendAnnouncement() {
           )}
         </div>
 
-        {/* Stats */}
+        
         <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           <Card title="Invited Groups" value={invitedGroups} />
           <Card title="Total Invited Guests" value={totalInvitedGuests} />
@@ -426,7 +412,7 @@ async function sendAnnouncement() {
           <Card title="Can't Attend Guests" value={cantAttendGuests} />
         </div>
 
-        {/* Tabs */}
+        
         <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-2">
           <div className="grid grid-cols-3 gap-2">
             <TabButton active={tab === "manage"} onClick={() => setTab("manage")}>
@@ -441,7 +427,7 @@ async function sendAnnouncement() {
           </div>
         </div>
 
-        {/* Manage Guests Panel */}
+        
         {tab === "manage" && (
           <>
             <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -560,7 +546,7 @@ async function sendAnnouncement() {
           </>
         )}
 
-        {/* Table Assignment Panel (placeholder for now) */}
+        
         {tab === "tables" && (
           <div className="mt-4 rounded-2xl bg-white ring-1 ring-slate-200 p-5">
             <div className="text-base font-semibold">Table Assignment</div>
@@ -574,10 +560,10 @@ async function sendAnnouncement() {
           </div>
         )}
 
-        {/* Communication Panel */}
+        
         {tab === "comm" && (
           <div className="mt-4 space-y-4">
-            {/* Messages Inbox */}
+            
             <div className="rounded-2xl bg-white ring-1 ring-slate-200">
               <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -674,7 +660,7 @@ async function sendAnnouncement() {
               </div>
             </div>
 
-            {/* Announcement */}
+            
             <div className="rounded-2xl bg-white ring-1 ring-slate-200 p-4">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -715,7 +701,7 @@ async function sendAnnouncement() {
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    {/* Status / progress */}
+                    
                     <div className="w-full">
                       {annErr ? (
                         <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
@@ -755,7 +741,7 @@ async function sendAnnouncement() {
                       ) : null}
                     </div>
 
-                    {/* Button */}
+                    
                     <div className="shrink-0">
                       <button
                         disabled={!unlocked || annSending}
@@ -781,7 +767,7 @@ async function sendAnnouncement() {
         )}
       </div>
 
-      {/* Modals */}
+      
       {editing ? (
         <EditModal value={editing} onClose={() => setEditing(null)} onSave={saveEdit} />
       ) : null}
@@ -1080,3 +1066,4 @@ function MessageModal({
     </div>
   );
 }
+

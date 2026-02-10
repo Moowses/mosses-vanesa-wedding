@@ -143,7 +143,7 @@ export default function AttireWomen() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="grid gap-6 md:grid-cols-2">
-        {/* WOMEN */}
+        
         <div className="relative overflow-hidden rounded-3xl bg-white/70 p-7 ring-1 ring-black/10 shadow-[0_18px_55px_rgba(0,0,0,0.10)]">
           <div
             className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full blur-3xl opacity-60"
@@ -165,18 +165,18 @@ export default function AttireWomen() {
           </div>
 
           <div className="mt-7 grid grid-cols-2 gap-3">
-            {/* Sponsor = secondary */}
+            
             <button type="button" onClick={() => setOpen("womenSponsor")} className={btnSecondary}>
               View Sponsor Attire
             </button>
-            {/* Guest = primary */}
+            
             <button type="button" onClick={() => setOpen("womenGuest")} className={btnPrimary}>
               View Guest Attire
             </button>
           </div>
         </div>
 
-        {/* MEN */}
+        
         <div className="relative overflow-hidden rounded-3xl bg-white/70 p-7 ring-1 ring-black/10 shadow-[0_18px_55px_rgba(0,0,0,0.10)]">
           <div
             className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-55"
@@ -212,7 +212,7 @@ export default function AttireWomen() {
         </div>
       </div>
 
-      {/* MODAL */}
+      
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -225,7 +225,7 @@ export default function AttireWomen() {
             className="w-full max-w-6xl overflow-hidden rounded-3xl bg-[#FBF8F1] ring-1 ring-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.35)]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* header */}
+            
             <div className="border-b border-black/10 px-5 py-4 sm:px-7">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 text-left">
@@ -245,7 +245,7 @@ export default function AttireWomen() {
               </div>
             </div>
 
-            {/* gallery */}
+            
             <div className="max-h-[60vh] overflow-y-auto px-5 py-6 sm:px-7">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {gallery.map((src, idx) => (
@@ -271,3 +271,4 @@ export default function AttireWomen() {
     </div>
   );
 }
+

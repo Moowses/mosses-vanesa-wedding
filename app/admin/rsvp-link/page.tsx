@@ -33,8 +33,6 @@ export default async function AdminRsvpLinksPage() {
       roleOrder: ROLE_PRIORITY[role] ?? 99,
     };
   });
-
-  // default sorting role->relation->name
   rows.sort((a, b) => {
     if (a.roleOrder !== b.roleOrder) return a.roleOrder - b.roleOrder;
     const rel = a.relation.localeCompare(b.relation);
@@ -44,3 +42,4 @@ export default async function AdminRsvpLinksPage() {
 
   return <RsvpAdminClient initialRows={rows} />;
 }
+

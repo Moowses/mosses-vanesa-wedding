@@ -609,6 +609,9 @@ export default function RsvpClient({ token }: { token: string }) {
             </button>
 
             <div className="mt-4 text-center text-xs text-slate-500">Need help? info@mossesandvanesa.com / 09261142143</div>
+            <div className="mt-2 text-center text-xs text-slate-500">
+              This RSVP URL uses a secure signed token to protect your RSVP access.
+            </div>
             <div className="mt-4 text-center text-base font-semibold text-slate-700">
               More info at{" "}
               <a

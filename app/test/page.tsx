@@ -1,4 +1,3 @@
-// app/page.tsx
 import Image from "next/image";
 import AttireWomen from "@/components/AttireWomen2";
 import GallerySlider from "@/components/GallerySlider";
@@ -88,7 +87,7 @@ function NavyPanel({
 }) {
   return (
     <section className="relative overflow-hidden bg-[#151B2E] px-6 py-14 md:px-16">
-      {/* soft florals vibe without needing PNGs */}
+      
       <div className="pointer-events-none absolute inset-0 opacity-100">
         <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-35" style={{ background: "#F7B7A3" }} />
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-28" style={{ background: "#D8CFE3" }} />
@@ -114,9 +113,9 @@ function NavyPanel({
 export default function Home() {
   return (
     <main className={`${comfortaa.className} min-h-screen bg-[#F3EEE8] px-4 py-10 md:py-14`}>
-      {/* Invitation canvas */}
+      
       <div className="mx-auto w-full max-w-[1100px] overflow-hidden rounded-[32px] bg-[#FBF8F1] shadow-[0_30px_90px_rgba(0,0,0,0.14)] ring-1 ring-black/5">
-        {/* Header */}
+        
         <header className="sticky top-0 z-20 bg-[#FBF8F1]/88 backdrop-blur-md border-b border-black/10">
           <div className="px-6 py-3 md:px-10">
             <div className="flex items-center justify-between gap-4">
@@ -142,7 +141,7 @@ export default function Home() {
           </div>
         </header>
 
-        {/* HERO */}
+        
         <section id="home" className="relative">
           <Image
             src="/hero-couple.jpg"
@@ -177,7 +176,7 @@ export default function Home() {
           </div>
         </section>
 
-  {/* Statement block  */}
+  
         <section className="px-6 pt-10 pb-8 text-center md:px-16 md:pt-14 md:pb-10">
   
 
@@ -187,7 +186,7 @@ export default function Home() {
           />
         </section>
 
-        {/* Story (2-column like reference) */}
+        
         
         <section id="story" className="px-6 pb-14 md:px-16">
           <div className="grid gap-10 md:grid-cols-2 md:items-start">
@@ -237,7 +236,7 @@ export default function Home() {
         </section>
 
 
-        {/* DETAILS (like your “Details” inspo but premium web layout) */}
+        
         <section id="details" className="px-6 py-14 md:px-16">
           <SectionTitle
             eyebrow="Details"
@@ -264,7 +263,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ATTIRE (your component redesigned) */}
+        
         <section id="attire" className="px-6 pb-14 md:px-16">
           <SectionTitle
             eyebrow="Attire Guide"
@@ -276,7 +275,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* (Optional) NAVY “ENTOURAGE” PANEL — matches your inspo look */}
+        
         <NavyPanel title="Entourage" subtitle="A special thank you to the people guiding us to this day.">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
@@ -299,7 +298,7 @@ export default function Home() {
           </div>
         </NavyPanel>
 
-        {/* GALLERY */}
+        
         <section id="gallery" className="px-6 py-14 md:px-16">
           <SectionTitle eyebrow="Moments" title="Gallery" subtitle="A few frames from our journey." />
           <div className="mt-10">
@@ -307,7 +306,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* FOOTER */}
+        
         <footer className="border-t border-black/10 px-6 py-10 text-center">
           <p className="text-[11px] uppercase tracking-[0.22em] text-[#7a7a7a]">
             Mosses &amp; Vanesa • March 06, 2026
@@ -328,3 +327,4 @@ export default function Home() {
     </main>
   );
 }
+

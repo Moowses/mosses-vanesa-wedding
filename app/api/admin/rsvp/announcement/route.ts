@@ -75,9 +75,7 @@ async function sendWithRetry(resend: Resend, payload: any) {
 
 
 declare global {
-  // eslint-disable-next-line no-var
   var __ANNOUNCE_LOCK__: boolean | undefined;
-  // eslint-disable-next-line no-var
   var __ANNOUNCE_LAST__: number | undefined;
 }
 
@@ -124,8 +122,6 @@ export async function POST(req: Request) {
 
   const resend = new Resend(process.env.RESEND_API_KEY!);
   const from = process.env.EMAIL_FROM!;
-
-  // Get RSVP emails
   const rsvpsSnap = await db.collection("rsvps").get();
   const emails = Array.from(
     new Set(
@@ -142,8 +138,6 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-
-  //  Build email → guest data map
   const guestsSnap = await db.collection(selectedAudience).get();
   const guestMap = new Map<
     string,
@@ -227,3 +221,4 @@ export async function POST(req: Request) {
     total: recipients.length,
   });
 }
+

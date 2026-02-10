@@ -1,7 +1,7 @@
-// app/page.tsx
 import Image from "next/image";
 import AttireWomen from "@/components/AttireWomen2";
 import GallerySlider from "@/components/GallerySlider";
+import HeroSection from "@/components/HeroSection";
 import LiveMessagesSection from "@/components/messages/LiveMessagesSection";
 import { Allura, Comfortaa } from "next/font/google";
 
@@ -89,7 +89,7 @@ function NavyPanel({
 }) {
   return (
     <section className="relative overflow-hidden bg-[#F4C2C2] px-6 py-14 md:px-16">
-      {/* soft florals vibe without needing PNGs */}
+      
       <div className="pointer-events-none absolute inset-0 opacity-100">
         <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-35" style={{ background: "#f1ae9a" }} />
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl opacity-28" style={{ background: "#b9a3d3" }} />
@@ -115,9 +115,9 @@ function NavyPanel({
 export default function Home() {
   return (
     <main className={`${comfortaa.className} min-h-screen bg-[#F3EEE8] px-4 py-10 md:py-14`}>
-      {/* Invitation canvas */}
+      
       <div className="mx-auto w-full max-w-[1100px] overflow-hidden rounded-[32px] bg-[#FBF8F1] shadow-[0_30px_90px_rgba(0,0,0,0.14)] ring-1 ring-black/5">
-       {/* Header */}
+       
           <header className="sticky top-0 z-20 bg-[#FBF8F1]/88 backdrop-blur-md border-b border-black/10">
             <div className="px-4 py-3 sm:px-6 md:px-10">
               <div className="sm:hidden text-center">
@@ -130,7 +130,7 @@ export default function Home() {
               </div>
 
               <div className="mt-3 sm:mt-0 flex items-center justify-center sm:justify-between gap-4">
-                {/* Desktop Left */}
+                
                 <div className="hidden sm:flex items-center gap-3 text-[10px] uppercase tracking-[0.30em] text-[#8a8a8a]">
                   <span className="h-[1px] w-10 bg-black/10" />
                   <span>Save the Date</span>
@@ -158,7 +158,7 @@ export default function Home() {
                 </div>
 
 
-                {/* Desktop Right */}
+                
                 <div className="hidden sm:flex items-center gap-3 text-[10px] uppercase tracking-[0.30em] text-[#8a8a8a]">
                   <span>March 06, 2026</span>
                   <span className="h-[1px] w-10 bg-black/10" />
@@ -168,52 +168,12 @@ export default function Home() {
           </header>
 
 
-        {/* HERO */}
-<section id="home" className="relative">
-  <Image
-    src="/hero-couple.jpg"
-    alt="Mosses and Vanesa"
-    width={1800}
-    height={980}
-    priority
-    className="h-[430px] w-full object-cover object-[50%_20%] md:h-[600px]"
-  />
-
-  <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/65" />
-
-  {/* TEXT AT BOTTOM */}
-  <div className="absolute inset-0 flex items-end justify-center px-6 pb-12 sm:pb-16">
-    <div className="w-full max-w-[850px] text-center text-white">
-      <h2 className="text-[12px] sm:text-[15px] uppercase tracking-[0.30em] text-white/75">
-        It’s official, we’re tying the knot.
-      </h2>
-
-      <h1
-        className={`
-          ${allura.className}
-          mt-6
-          text-[50px]
-          leading-[0.9]
-          sm:mt-8
-          sm:text-[105px]
-          md:text-[120px]
-        `}
-      >
-        Mosses &amp; Vanesa
-      </h1>
-
-      <div className="mx-auto mt-5 h-[1px] w-24 bg-white/35" />
-
-      <p className="mt-4 text-[12px] uppercase tracking-[0.30em] text-white/85">
-        March 6, 2026 • 2:00 PM • Eden
-      </p>
-    </div>
-  </div>
-</section>
+                
+        <HeroSection alluraClassName={allura.className} />
 
 
 
-  {/* Statement block  */}
+  
         <section className="px-6 pt-10 pb-8 text-center md:px-16 md:pt-14 md:pb-10">
   
 
@@ -223,7 +183,7 @@ export default function Home() {
           />
         </section>
 
-        {/* Story (2-column like reference) */}
+        
         
         <section id="story" className="px-5 pb-14 md:px-14">
           <div className="grid gap-10 md:grid-cols-2 md:items-start">
@@ -275,7 +235,7 @@ export default function Home() {
         </section>
 
 
-        {/* DETAILS (like your “Details” inspo but premium web layout) */}
+        
         <section id="details" className="px-6 py-14 md:px-16">
           <SectionTitle
             eyebrow="Details"
@@ -302,7 +262,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ATTIRE (your component redesigned) */}
+        
         <section id="attire" className="px-6 pb-14 md:px-16">
           <SectionTitle
             eyebrow="Attire Guide"
@@ -314,11 +274,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* (Optional) NAVY “ENTOURAGE” PANEL — matches your inspo look */}
+        
         <NavyPanel title="Entourage" subtitle="A special thank you to the people guiding us to this day.">
           <div className="space-y-6">
 
-          {/* Families */}
+          
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
@@ -341,7 +301,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Maid of Honor | Best Man */}
+          
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
@@ -362,7 +322,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bridesmaids | Groomsmen */}
+          
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
               <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
@@ -395,7 +355,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bearers */}
+          
           <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
             <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
               Bearers
@@ -407,7 +367,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Principal Sponsors */}
+          
           <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
             <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
               Principal Sponsors
@@ -422,7 +382,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Secondary Sponsors */}
+          
           <div className="rounded-3xl bg-black/5 p-7 ring-1 ring-white/10 text-center">
             <p className="text-[12px] uppercase tracking-[0.28em] text-white/70">
               Secondary Sponsors
@@ -442,7 +402,7 @@ export default function Home() {
 
         </NavyPanel>
 
-        {/* GALLERY */}
+        
         <section id="gallery" className="px-6 py-14 md:px-16">
           <SectionTitle eyebrow="Moments" title="Gallery" subtitle="A few frames from our journey." />
           <div className="mt-10">
@@ -457,20 +417,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* FOOTER */}
+        
         <footer className="border-t border-black/10 px-6 py-10 text-center">
           <p className="text-[11px] uppercase tracking-[0.22em] text-[#7a7a7a]">
             Mosses &amp; Vanesa • March 06, 2026
           </p>
           <p className="mt-2 text-xs text-[#8a8a8a]">
-            More info at{" "}
+            All rights reserved 2026 •{" "}
             <a
-              href="https://www.mossesandvanesa.com"
+              href="/privacy-policy"
               className="underline decoration-black/20 underline-offset-4 hover:text-[#C58E86] transition"
-              target="_blank"
-              rel="noreferrer"
             >
-              mossesandvanesa.com
+              Privacy Policy
             </a>
           </p>
         </footer>
@@ -478,3 +436,7 @@ export default function Home() {
     </main>
   );
 }
+
+
+
+

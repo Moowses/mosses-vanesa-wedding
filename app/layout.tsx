@@ -51,6 +51,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+        <footer className="border-t border-black/10 bg-white/90 px-4 py-3 text-center text-xs text-slate-600">
+          <a href="/privacy-policy" className="underline underline-offset-2 hover:text-slate-900">
+            Privacy Policy
+          </a>
+        </footer>
       </body>
     </html>
   );

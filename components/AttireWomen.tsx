@@ -115,8 +115,6 @@ export default function AttireGuide() {
 
     return null;
   }, [open]);
-
-  // Consistent button style (same size, mobile-friendly)
   const btnClass =
     "w-full inline-flex items-center justify-center rounded-2xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-slate-700 " +
     "shadow-[0_10px_26px_rgba(0,0,0,0.06)] hover:bg-white/80 active:scale-[0.99] transition";
@@ -127,16 +125,16 @@ export default function AttireGuide() {
       <div className="mx-auto my-5 h-[1px] w-16 bg-black/15" />
 
       <div className="mx-auto mt-10 max-w-3xl">
-        {/* WOMEN */}
+        
         <p className="text-[11px] uppercase tracking-[0.25em] text-[#787878]">Attire for Women</p>
 
-        {/* Generalized description (details go to modal) */}
+        
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#5b5b5b]">
           For our women guests, we invite you to choose a whimsical dress light, romantic, and flowy
           silhouettes that move beautifully. Please use the palette below as your guide.
         </p>
 
-        {/* Palette (2 columns on mobile) */}
+        
         <div className="mt-7 mx-auto grid max-w-[560px] grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           {WOMEN_COLORS.map((c) => (
             <div
@@ -155,7 +153,7 @@ export default function AttireGuide() {
           ))}
         </div>
 
-        {/* Women Buttons (2 columns on mobile, equal sizing) */}
+        
         <div className="mt-8 mx-auto grid max-w-[560px] grid-cols-2 gap-3">
           <button type="button" onClick={() => setOpen("womenSponsor")} className={btnClass}>
             Sponsor Women
@@ -165,13 +163,13 @@ export default function AttireGuide() {
           </button>
         </div>
 
-        {/* Divider */}
+        
         <div className="mx-auto my-10 h-[1px] w-16 bg-black/15" />
 
-        {/* MEN */}
+        
         <p className="text-[11px] uppercase tracking-[0.25em] text-[#787878]">Attire for Men</p>
 
-        {/* Keep the section clean; details go to modal */}
+        
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#5b5b5b]">
           Barong Tagalog paired with black slacks and black shoes for a clean, classic, and coordinated
           look.
@@ -184,7 +182,7 @@ export default function AttireGuide() {
         </div>
       </div>
 
-      {/* MODAL */}
+      
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -232,3 +230,4 @@ export default function AttireGuide() {
     </section>
   );
 }
+
