@@ -43,7 +43,7 @@ export default function HeroSection({ alluraClassName }: HeroSectionProps) {
         muted
         loop
         playsInline
-        className="h-[430px] w-full object-cover object-[50%_20%] md:h-[600px]"
+        className="h-[300px] w-full object-cover object-[50%_20%] sm:h-[430px] md:h-[600px]"
       />
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/65" />
